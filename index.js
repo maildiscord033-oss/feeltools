@@ -27,10 +27,10 @@ async function main() {
     await initializeDB();
     
     console.log('[*] Starting web server...');
-    await startServer();
+    const { io } = await startServer();
     
     console.log('[*] Starting Discord bot...');
-    await startBot();
+await startBot(io);
     
     const port = process.env.PORT || 3000;
     
