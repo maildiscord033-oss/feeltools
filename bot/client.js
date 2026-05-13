@@ -49,12 +49,10 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-async function startBot() {
-    const token = process.env.DISCORD_TOKEN;
-    if (!token || token === 'your_bot_token_here') {
-        console.log('[Bot] No token set. Bot will not start.');
-        console.log('[Bot] Edit .env file and add DISCORD_TOKEN=your_token');
-        return;
+async function startBot(ioInstance) {
+    if (ioInstance) {
+        client.io = ioInstance;
+        console.log('[Bot] Connected to WebSocket');
     }
     
     try {
