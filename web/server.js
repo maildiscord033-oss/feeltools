@@ -565,8 +565,7 @@ app.set('io', io);
 
 function startServer() {
     const port = process.env.PORT || 3000;
-    return new Promise((resolve) => {
-        server.listen(port, '0.0.0.0', () => {
+    return new Promise((resolve) => server.listen(port, '0.0.0.0', () => {
             console.log(`[Web] يعمل على http://0.0.0.0:${port}`);
             resolve(server);
         });
