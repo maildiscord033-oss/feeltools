@@ -19,7 +19,13 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use('/api/', rateLimit({ windowMs: 15 * 60 * 1000, max: 300, message: { error: 'طلبات كثيرة' } }));
+app.set('trust proxy', 1);
+app.use('/api/', rateLimit({ 
+    windowMs: 15 * 60 * 1000, 
+    max: 300, 
+    message: { error: 'طلبات كثيرة' },
+    validate: { xForwardedForHeader: false }
+}));
 app.use(express.static(path.join(__dirname, '..', 'dashboard')));
 
 // ========== API ==========
