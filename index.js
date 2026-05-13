@@ -28,7 +28,7 @@ async function main() {
     await startServer();
     
     // البوت في Railway - اختياري
-    if (process.env.DISCORD_TOKEN && process.env.DISCORD_TOKEN !== 'MTUwMDQ2OTM3Njk3MTcwMjI5Mw.GxWUzd.XdEKGHtk40KGRNWiCrG4NuiP_DvchWnV0Fq2KI') {
+    if (process.env.DISCORD_TOKEN && process.env.DISCORD_TOKEN !== '') {
         console.log('[*] Starting Discord bot...');
         try {
             await startBot();
