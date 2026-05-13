@@ -1,0 +1,21 @@
+{
+    "store_name": "FEEL STORE",
+    "version": "1.0.0",
+    "activation": {
+        "enabled": true,
+        "require_hwid": true,
+        "max_devices_per_key": 1
+    },
+    "security": {
+        "anti_debug": true,
+        "anti_tamper": true,
+        "rate_limit_window": 900000,
+        "rate_limit_max": 100
+    },
+    "theme": {
+        "dark": true,
+        "primary_color": "#ff0000",
+        "secondary_color": "#000000",
+        "accent_color": "#cc0000"
+    }
+}

@@ -1,0 +1,6 @@
+.env
+bot/.env
+data/*.json
+data/*.log
+node_modules/
+*.log
