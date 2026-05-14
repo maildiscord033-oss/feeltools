@@ -34,6 +34,17 @@ if (fs.existsSync(commandsPath)) {
 client.once('ready', () => {
     console.log(`[Bot] ${client.user.tag} is online!`);
     console.log(`[Bot] Serving ${client.guilds.cache.size} servers`);
+
+    client.user.setPresence({
+        activities: [
+            {
+                name: 'Feel Store',
+                type: 1, // Streaming
+                url: 'https://twitch.tv/feelstore'
+            }
+        ],
+        status: 'online'
+    });
 });
 
 client.on('interactionCreate', async interaction => {
