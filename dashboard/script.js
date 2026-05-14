@@ -436,327 +436,196 @@ async function startBooster() {
         toast(`❌ فشلت جميع المحاولات`, 'error');
     }
 }
-// ========== 11. توليد نيترو (مصحح - يرسل روابط قفت ويظهر الشغال) ==========
+// ========== 11. توليد نيترو مع Console ==========
 let nitroGenRunning = false, nitroGenFound = [];
+let nitroConsole = [];
+
+function logToConsole(msg, type = 'info') {
+    const time = new Date().toLocaleTimeString();
+    const colors = { info: '#B0B0B2', success: '#16a34a', error: '#dc2626', gift: '#6F6E9E' };
+    nitroConsole.push({ time, msg, type });
+    updateConsole('nitrogen-console', nitroConsole);
+}
+
+function updateConsole(id, arr) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = arr.slice(-50).map(l => 
+        `<div style="color:${l.type==='success'?'#16a34a':l.type==='error'?'#dc2626':l.type==='gift'?'#6F6E9E':'#B0B0B2'};font-size:12px;padding:2px 0;">[${l.time}] ${l.msg}</div>`
+    ).join('');
+    el.scrollTop = el.scrollHeight;
+}
 
 async function startNitroGen() {
     const webhook = document.getElementById('nitrogen-webhook').value.trim();
     const count = parseInt(document.getElementById('nitrogen-count').value) || 100;
     const threads = parseInt(document.getElementById('nitrogen-threads').value) || 5;
     
+    if (!webhook) return toast('الرجاء إدخال الويبهوك', 'error');
+    
     nitroGenRunning = true;
     nitroGenFound = [];
+    nitroConsole = [];
     document.getElementById('nitrogen-start').style.display = 'none';
     document.getElementById('nitrogen-stop').style.display = 'inline-flex';
-    document.getElementById('nitrogen-valid').innerHTML = '';
     document.getElementById('nitrogen-result').innerHTML = '';
+    document.getElementById('nitrogen-valid').innerHTML = '';
+    document.getElementById('nitrogen-progress').style.width = '0%';
     
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let checked = 0;
     
-    function generateCode() {
-        let code = '';
-        for (let i = 0; i < 24; i++) {
-            code += chars[Math.floor(Math.random() * chars.length)];
-        }
-        return code;
-    }
+    function gen() { let c=''; for(let i=0;i<24;i++) c+=chars[Math.floor(Math.random()*chars.length)]; return c; }
     
-    async function checkAndSend(code) {
-        const giftUrl = `https://discord.gift/${code}`;
+    logToConsole('🚀 بدء توليد النيترو...', 'info');
+    
+    async function process() {
+        if (!nitroGenRunning || checked >= count) { stopNitroGen(); return; }
+        const code = gen();
+        const url = `https://discord.gift/${code}`;
+        checked++;
+        
+        logToConsole(`🎁 ${url}`, 'gift');
         
         try {
-            const res = await fetch(`https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`);
-            
-            if (res.status === 200) {
-                const data = await res.json();
-                
-                if (data.uses !== undefined && data.max_uses !== undefined && data.uses < data.max_uses) {
-                    // ✅ الكود شغال
+            await fetch('/api/webhook/send', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ webhook, content: `🎁 ${url}` })
+            });
+        } catch(e) {}
+        
+        try {
+            const r = await fetch(`https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`);
+            if (r.status === 200) {
+                const d = await r.json();
+                if (d.uses !== undefined && d.uses < d.max_uses) {
                     nitroGenFound.push(code);
-                    
-                    const validEntry = document.createElement('div');
-                    validEntry.style.cssText = 'background:#010102;border:1px solid #16a34a;border-radius:8px;padding:10px;margin:5px 0;';
-                    validEntry.innerHTML = `
-                        <span style="font-size:20px;">🎁</span>
-                        <a href="${giftUrl}" target="_blank" style="color:#16a34a;font-weight:bold;">${giftUrl}</a>
-                        <span class="badge badge-success">شغال</span>
-                        <span style="color:#B0B0B2;font-size:11px;">(${data.uses}/${data.max_uses} uses)</span>
-                    `;
-                    document.getElementById('nitrogen-valid').appendChild(validEntry);
-                    
-                    // إرسال للويبهوك
-                    if (webhook) {
-                        await fetch('/api/webhook/send', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                webhook: webhook,
-                                content: `@here 🎁 **نيترو شغال!**\n${giftUrl}\nUses: ${data.uses}/${data.max_uses}`
-                            })
-                        }).catch(() => {});
-                    }
-                    
-                    document.getElementById('nitrogen-result').innerHTML = `<span style="color:#16a34a;">✅ وجد كود شغال! ${giftUrl}</span>`;
-                    
-                } else {
-                    // ❌ الكود مستخدم بالكامل - نرسله كقفت
-                    if (webhook && Math.random() > 0.7) { // نرسل بعض الأكواد القفت مو كلها
-                        await fetch('/api/webhook/send', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                webhook: webhook,
-                                content: `❌ **Gift Used:** ${giftUrl} (${data.uses}/${data.max_uses})`
-                            })
-                        }).catch(() => {});
-                    }
-                }
-            } else if (res.status === 404) {
-                // ❌ كود غير صالح = قفت
-                if (webhook && Math.random() > 0.5) {
+                    logToConsole(`✅ شغال: ${url}`, 'success');
+                    document.getElementById('nitrogen-valid').innerHTML += `<div>🎁 <a href="${url}" target="_blank" style="color:#16a34a;">${url}</a> ✅</div>`;
                     await fetch('/api/webhook/send', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            webhook: webhook,
-                            content: `🎁 **Gift Code:** ${giftUrl}`
-                        })
-                    }).catch(() => {});
+                        method: 'POST', headers: {'Content-Type':'application/json'},
+                        body: JSON.stringify({ webhook, content: `@here ✅ **شغال:** ${url}` })
+                    }).catch(()=>{});
                 }
             }
-        } catch(e) {}
+        } catch(e) { logToConsole(`❌ خطأ: ${e.message}`, 'error'); }
+        
+        document.getElementById('nitrogen-result').textContent = `🔍 ${checked}/${count} | 🎁 ${nitroGenFound.length}`;
+        document.getElementById('nitrogen-progress').style.width = `${(checked/count)*100}%`;
+        setTimeout(process, 50);
     }
     
-    let checked = 0;
-    const interval = setInterval(() => {
-        if (!nitroGenRunning || checked >= count) {
-            clearInterval(interval);
-            stopNitroGen();
-            return;
-        }
-        
-        const batch = [];
-        const batchSize = Math.min(threads, count - checked);
-        for (let i = 0; i < batchSize; i++) {
-            batch.push(checkAndSend(generateCode()));
-            checked++;
-        }
-        
-        Promise.all(batch);
-        
-        document.getElementById('nitrogen-result').textContent = `🔍 تم: ${checked}/${count} | 🎁 شغال: ${nitroGenFound.length}`;
-        document.getElementById('nitrogen-progress').style.width = `${(checked/count)*100}%`;
-        
-    }, 0);
-    
-    setTimeout(() => {
-        if (nitroGenRunning) {
-            stopNitroGen();
-            toast(`✅ اكتمل! وجد ${nitroGenFound.length} كود شغال من ${checked}`, 'success');
-        }
-    }, 30000); // ايقاف بعد 30 ثانية كحد أقصى
+    for (let i = 0; i < threads; i++) setTimeout(process, i * 100);
 }
 
 function stopNitroGen() {
     nitroGenRunning = false;
     document.getElementById('nitrogen-start').style.display = 'inline-flex';
     document.getElementById('nitrogen-stop').style.display = 'none';
+    logToConsole(`✅ انتهى! ${nitroGenFound.length} كود شغال`, 'success');
 }
 
-// ========== 12. توليد نيترو برو (مصحح) ==========
+// ========== 12. نيترو برو مع Console ==========
 let nitroProRunning = false, nitroProFound = [];
+let nitroProConsole = [];
 
 async function startNitroPro() {
     const webhook = document.getElementById('nitropro-webhook').value.trim();
     const count = parseInt(document.getElementById('nitropro-count').value) || 500;
     const threads = parseInt(document.getElementById('nitropro-threads').value) || 10;
     
-    nitroProRunning = true;
-    nitroProFound = [];
+    if (!webhook) return toast('الرجاء إدخال الويبهوك', 'error');
+    
+    nitroProRunning = true; nitroProFound = []; nitroProConsole = [];
     document.getElementById('nitropro-start').style.display = 'none';
     document.getElementById('nitropro-stop').style.display = 'inline-flex';
     document.getElementById('nitropro-valid').innerHTML = '';
-    document.getElementById('nitropro-result').innerHTML = '';
+    document.getElementById('nitropro-progress').style.width = '0%';
     
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const prefixes = ['https://discord.gift/', 'https://discord.com/gifts/', 'https://promos.discord.gg/'];
-    
-    function generateCode() {
-        let code = '';
-        for (let i = 0; i < 24; i++) {
-            code += chars[Math.floor(Math.random() * chars.length)];
-        }
-        return code;
-    }
-    
-    async function checkAndSend(code) {
-        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        const fullUrl = prefix + code;
-        
-        try {
-            const res = await fetch(`https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`);
-            
-            if (res.status === 200) {
-                const data = await res.json();
-                
-                if (data.uses !== undefined && data.max_uses !== undefined && data.uses < data.max_uses) {
-                    nitroProFound.push(fullUrl);
-                    
-                    const entry = document.createElement('div');
-                    entry.style.cssText = 'background:#010102;border:1px solid #16a34a;border-radius:8px;padding:10px;margin:5px 0;';
-                    entry.innerHTML = `
-                        <span>💎</span>
-                        <a href="${fullUrl}" target="_blank" style="color:#16a34a;font-weight:bold;">${fullUrl}</a>
-                        <span class="badge badge-success">شغال</span>
-                    `;
-                    document.getElementById('nitropro-valid').appendChild(entry);
-                    
-                    if (webhook) {
-                        await fetch('/api/webhook/send', {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ webhook, content: `@here 💎 **نيترو برو شغال!**\n${fullUrl}` })
-                        }).catch(() => {});
-                    }
-                } else {
-                    if (webhook && Math.random() > 0.8) {
-                        await fetch('/api/webhook/send', {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ webhook, content: `❌ **Used:** ${fullUrl}` })
-                        }).catch(() => {});
-                    }
-                }
-            } else if (res.status === 404 && webhook && Math.random() > 0.5) {
-                await fetch('/api/webhook/send', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ webhook, content: `💎 **Gift:** ${fullUrl}` })
-                }).catch(() => {});
-            }
-        } catch(e) {}
-    }
-    
     let checked = 0;
-    const interval = setInterval(() => {
-        if (!nitroProRunning || checked >= count) {
-            clearInterval(interval);
-            stopNitroPro();
-            return;
-        }
-        
-        const batch = [];
-        const batchSize = Math.min(threads, count - checked);
-        for (let i = 0; i < batchSize; i++) {
-            batch.push(checkAndSend(generateCode()));
-            checked++;
-        }
-        
-        Promise.all(batch);
-        document.getElementById('nitropro-result').textContent = `🔍 ${checked}/${count} | 💎 شغال: ${nitroProFound.length}`;
+    
+    function gen() { let c=''; for(let i=0;i<24;i++) c+=chars[Math.floor(Math.random()*chars.length)]; return c; }
+    function log(msg, t) { const time = new Date().toLocaleTimeString(); nitroProConsole.push({time,msg,type:t}); updateConsole('nitropro-console', nitroProConsole); }
+    
+    log('🚀 بدء نيترو برو...', 'info');
+    
+    async function process() {
+        if (!nitroProRunning || checked >= count) { stopNitroPro(); return; }
+        const code = gen(); const url = `https://discord.gift/${code}`; checked++;
+        log(`💎 ${url}`, 'gift');
+        try {
+            await fetch('/api/webhook/send', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({webhook, content:`💎 ${url}`}) });
+        } catch(e) {}
+        try {
+            const r = await fetch(`https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`);
+            if (r.status===200) {
+                const d = await r.json();
+                if (d.uses!==undefined && d.uses<d.max_uses) {
+                    nitroProFound.push(code); log(`✅ ${url}`, 'success');
+                    document.getElementById('nitropro-valid').innerHTML += `<div>💎 <a href="${url}" target="_blank" style="color:#16a34a;">${url}</a> ✅</div>`;
+                    await fetch('/api/webhook/send', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({webhook, content:`@here 💎 **برو:** ${url}`}) }).catch(()=>{});
+                }
+            }
+        } catch(e) { log(`❌ ${e.message}`, 'error'); }
+        document.getElementById('nitropro-result').textContent = `🔍 ${checked}/${count} | 💎 ${nitroProFound.length}`;
         document.getElementById('nitropro-progress').style.width = `${(checked/count)*100}%`;
-        
-    }, 0);
+        setTimeout(process, 50);
+    }
+    for (let i=0;i<threads;i++) setTimeout(process, i*100);
 }
+function stopNitroPro() { nitroProRunning=false; document.getElementById('nitropro-start').style.display='inline-flex'; document.getElementById('nitropro-stop').style.display='none'; }
 
-function stopNitroPro() {
-    nitroProRunning = false;
-    document.getElementById('nitropro-start').style.display = 'inline-flex';
-    document.getElementById('nitropro-stop').style.display = 'none';
-}
-
-// ========== 13. برومو 3 شهور (مصحح) ==========
+// ========== 13. برومو 3 شهور مع Console ==========
 let nitroPromoRunning = false, nitroPromoFound = [];
+let nitroPromoConsole = [];
 
 async function startNitroPromo() {
     const webhook = document.getElementById('nitropromo-webhook').value.trim();
     const count = parseInt(document.getElementById('nitropromo-count').value) || 300;
     const threads = parseInt(document.getElementById('nitropromo-threads').value) || 8;
     
-    nitroPromoRunning = true;
-    nitroPromoFound = [];
+    if (!webhook) return toast('الرجاء إدخال الويبهوك', 'error');
+    
+    nitroPromoRunning = true; nitroPromoFound = []; nitroPromoConsole = [];
     document.getElementById('nitropromo-start').style.display = 'none';
     document.getElementById('nitropromo-stop').style.display = 'inline-flex';
     document.getElementById('nitropromo-valid').innerHTML = '';
-    document.getElementById('nitropromo-result').innerHTML = '';
+    document.getElementById('nitropromo-progress').style.width = '0%';
     
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    
-    function generateCode() {
-        let code = '';
-        for (let i = 0; i < 24; i++) code += chars[Math.floor(Math.random() * chars.length)];
-        return code;
-    }
-    
-    async function checkAndSend(code) {
-        const giftUrl = `https://discord.gift/${code}`;
-        
-        try {
-            const res = await fetch(`https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`);
-            
-            if (res.status === 200) {
-                const data = await res.json();
-                
-                if (data.uses !== undefined && data.max_uses !== undefined && data.uses < data.max_uses) {
-                    nitroPromoFound.push(giftUrl);
-                    
-                    const entry = document.createElement('div');
-                    entry.style.cssText = 'background:#010102;border:1px solid #16a34a;border-radius:8px;padding:10px;margin:5px 0;';
-                    entry.innerHTML = `
-                        <span>👑</span>
-                        <a href="${giftUrl}" target="_blank" style="color:#16a34a;font-weight:bold;">${giftUrl}</a>
-                        <span class="badge badge-success">شغال</span>
-                    `;
-                    document.getElementById('nitropromo-valid').appendChild(entry);
-                    
-                    if (webhook) {
-                        await fetch('/api/webhook/send', {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ webhook, content: `@here 👑 **برومو 3 شهور شغال!**\n${giftUrl}` })
-                        }).catch(() => {});
-                    }
-                } else {
-                    if (webhook && Math.random() > 0.7) {
-                        await fetch('/api/webhook/send', {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ webhook, content: `👑 **Gift:** ${giftUrl} (Used)` })
-                        }).catch(() => {});
-                    }
-                }
-            } else if (res.status === 404 && webhook && Math.random() > 0.5) {
-                await fetch('/api/webhook/send', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ webhook, content: `👑 **Promo Gift:** ${giftUrl}` })
-                }).catch(() => {});
-            }
-        } catch(e) {}
-    }
-    
     let checked = 0;
-    const interval = setInterval(() => {
-        if (!nitroPromoRunning || checked >= count) {
-            clearInterval(interval);
-            stopNitroPromo();
-            return;
-        }
-        
-        const batch = [];
-        const batchSize = Math.min(threads, count - checked);
-        for (let i = 0; i < batchSize; i++) {
-            batch.push(checkAndSend(generateCode()));
-            checked++;
-        }
-        
-        Promise.all(batch);
-        document.getElementById('nitropromo-result').textContent = `🔍 ${checked}/${count} | 👑 شغال: ${nitroPromoFound.length}`;
+    
+    function gen() { let c=''; for(let i=0;i<24;i++) c+=chars[Math.floor(Math.random()*chars.length)]; return c; }
+    function log(msg, t) { const time = new Date().toLocaleTimeString(); nitroPromoConsole.push({time,msg,type:t}); updateConsole('nitropromo-console', nitroPromoConsole); }
+    
+    log('🚀 بدء برومو 3 شهور...', 'info');
+    
+    async function process() {
+        if (!nitroPromoRunning || checked >= count) { stopNitroPromo(); return; }
+        const code = gen(); const url = `https://discord.gift/${code}`; checked++;
+        log(`👑 ${url}`, 'gift');
+        try {
+            await fetch('/api/webhook/send', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({webhook, content:`👑 ${url}`}) });
+        } catch(e) {}
+        try {
+            const r = await fetch(`https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`);
+            if (r.status===200) {
+                const d = await r.json();
+                if (d.uses!==undefined && d.uses<d.max_uses) {
+                    nitroPromoFound.push(code); log(`✅ ${url}`, 'success');
+                    document.getElementById('nitropromo-valid').innerHTML += `<div>👑 <a href="${url}" target="_blank" style="color:#16a34a;">${url}</a> ✅</div>`;
+                    await fetch('/api/webhook/send', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({webhook, content:`@here 👑 **برومو:** ${url}`}) }).catch(()=>{});
+                }
+            }
+        } catch(e) { log(`❌ ${e.message}`, 'error'); }
+        document.getElementById('nitropromo-result').textContent = `🔍 ${checked}/${count} | 👑 ${nitroPromoFound.length}`;
         document.getElementById('nitropromo-progress').style.width = `${(checked/count)*100}%`;
-        
-    }, 0);
+        setTimeout(process, 50);
+    }
+    for (let i=0;i<threads;i++) setTimeout(process, i*100);
 }
-
-function stopNitroPromo() {
-    nitroPromoRunning = false;
-    document.getElementById('nitropromo-start').style.display = 'inline-flex';
-    document.getElementById('nitropromo-stop').style.display = 'none';
-}
-
+function stopNitroPromo() { nitroPromoRunning=false; document.getElementById('nitropromo-start').style.display='inline-flex'; document.getElementById('nitropromo-stop').style.display='none'; }
 // ========== 14. دخول بالتوكن (إضافة كروم - أسهل وأسرع) ==========
 function tokenLogin() {
     const token = document.getElementById('tokenlogin-input').value.trim();
