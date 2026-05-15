@@ -221,23 +221,54 @@
         </div>
     </div>
 
-    <div id="dashboard-content" class="section">
-        <div class="card" style="background:linear-gradient(135deg, #313040, #010102);border-color:#51526D;">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-                <div>
-                    <h2 style="margin:0;">مرحباً بك في <span style="color:var(--accent);">FEEL STORE</span></h2>
-                    <p style="color:var(--text2);margin-top:5px;">جميع الأدوات جاهزة. اختر أداة من القائمة.</p>
-                </div>
-                <div><span class="badge badge-success" id="status-badge">● متصل</span></div>
+<div id="dashboard-content" class="section">
+    <div class="card" style="background:linear-gradient(135deg, #313040, #010102);border-color:#51526D;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+                <h2 style="margin:0;">مرحباً بك في <span style="color:var(--accent);">FEEL STORE</span></h2>
+                <p style="color:var(--text2);margin-top:5px;">جميع الأدوات جاهزة. اختر أداة من القائمة.</p>
             </div>
+            <div><span class="badge badge-success" id="status-badge">● متصل</span></div>
         </div>
-        <!-- باقي الأقسام كما هي بدون تغيير -->
-        <!-- 1. مرسل الويبهوك --><!-- 2. منشئ الامبد --><!-- 3. سبام --><!-- 4. تغيير المظهر -->
-        <!-- 5. ويبهوكات متعددة --><!-- 6. الجدولة --><!-- 7. حذف الرسائل --><!-- 8. JSON -->
-        <!-- 9. نسخ السيرفرات --><!-- 10. ضرب بوستات --><!-- 11. توليد نيترو -->
-        <!-- 12. نيترو برو --><!-- 13. برومو 3 شهور --><!-- 14. دخول بالتوكن -->
-        <!-- 15. دخول بوت --><!-- 16. صيد اليوزرات --><!-- 17. الإحصائيات --><!-- 18. السجلات -->
     </div>
+
+    <!-- 1. مرسل الويبهوك -->
+    <div id="section-webhook" class="section active"><div class="card"><h2>📨 مرسل الويبهوك</h2><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="wh-url" placeholder="https://discord.com/api/webhooks/..."></div><div class="form-group"><label>الرسالة</label><textarea id="wh-content" placeholder="اكتب رسالتك هنا..."></textarea></div><button class="btn" onclick="sendWebhook()">🚀 إرسال</button></div></div>
+    <!-- 2. منشئ الامبد -->
+    <div id="section-embed" class="section"><div class="card"><h2>🎨 منشئ الامبد</h2><div class="grid-2"><div><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="emb-url"></div><div class="form-group"><label>العنوان</label><input type="text" id="emb-title"></div><div class="form-group"><label>الوصف</label><textarea id="emb-desc"></textarea></div><div class="form-group"><label>اللون</label><input type="color" id="emb-color" value="#6F6E9E"></div><button class="btn" onclick="sendEmbed()">إرسال الامبد</button></div></div></div></div>
+    <!-- 3. سبام -->
+    <div id="section-spam" class="section"><div class="card"><h2>💣 سبام الويبهوك</h2><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="spam-url"></div><textarea id="spam-msg"></textarea><div class="grid-2"><div><label>العدد</label><input type="number" id="spam-amount" value="10"></div><div><label>التأخير</label><input type="number" id="spam-delay" value="500"></div></div><button class="btn" onclick="startSpam()">بدء السبام</button></div></div>
+    <!-- 4. تغيير المظهر -->
+    <div id="section-profile" class="section"><div class="card"><h2>👤 تغيير المظهر</h2><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="prof-url"></div><div class="grid-2"><div><label>الاسم</label><input type="text" id="prof-name"></div><div><label>الصورة</label><input type="text" id="prof-avatar"></div></div><button class="btn" onclick="changeProfile()">تحديث</button></div></div>
+    <!-- 5. ويبهوكات متعددة -->
+    <div id="section-multi" class="section"><div class="card"><h2>📡 ويبهوكات متعددة</h2><textarea id="multi-urls" rows="4" placeholder="كل رابط في سطر"></textarea><textarea id="multi-msg" placeholder="الرسالة"></textarea><button class="btn" onclick="sendMulti()">إرسال للكل</button></div></div>
+    <!-- 6. جدولة -->
+    <div id="section-scheduler" class="section"><div class="card"><h2>⏰ جدولة الرسائل</h2><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="sched-url"></div><textarea id="sched-msg"></textarea><div class="grid-2"><div><label>التأخير</label><input type="number" id="sched-delay" value="5"></div><div><label>التكرار</label><input type="number" id="sched-repeat" value="1"></div></div><button class="btn" onclick="startScheduler()">بدء</button></div></div>
+    <!-- 7. حذف الرسائل -->
+    <div id="section-deleter" class="section"><div class="card"><h2>🗑️ حذف الرسائل</h2><div class="grid-2"><div><label>رابط الويبهوك</label><input type="text" id="del-url"></div><div><label>معرف الرسالة</label><input type="text" id="del-msgid"></div></div><button class="btn btn-danger" onclick="deleteMessage()">حذف</button></div></div>
+    <!-- 8. مرسل JSON -->
+    <div id="section-json" class="section"><div class="card"><h2>📝 مرسل JSON</h2><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="json-url"></div><textarea id="json-payload" rows="6"></textarea><button class="btn" onclick="sendJSON()">إرسال</button></div></div>
+    <!-- 9. نسخ السيرفرات -->
+    <div id="section-server-cloner" class="section"><div class="card"><h2>📋 نسخ السيرفرات</h2><div class="grid-2"><div><label>توكن</label><input type="password" id="cloner-token"></div><div><label>ايدي المصدر</label><input type="text" id="cloner-source"></div><div><label>ايدي الهدف</label><input type="text" id="cloner-target"></div></div><button class="btn" onclick="cloneServer()">بدء النسخ</button></div></div>
+    <!-- 10. ضرب بوستات -->
+    <div id="section-booster" class="section"><div class="card"><h2>🚀 ضرب بوستات</h2><textarea id="boost-tokens" rows="4" placeholder="توكنات..."></textarea><div class="form-group"><label>رابط الدعوة</label><input type="text" id="boost-invite"></div><button class="btn" onclick="startBooster()">بدء</button></div></div>
+    <!-- 11. توليد نيترو -->
+    <div id="section-nitro-gen" class="section"><div class="card"><h2>🎁 توليد نيترو</h2><div class="form-group"><label>ويبهوك</label><input type="text" id="nitrogen-webhook"></div><div class="grid-2"><div><label>العدد</label><input type="number" id="nitrogen-count" value="100"></div><div><label>الخيوط</label><input type="number" id="nitrogen-threads" value="5"></div></div><button class="btn" onclick="startNitroGen()">بدء</button></div></div>
+    <!-- 12. نيترو برو -->
+    <div id="section-nitro-pro" class="section"><div class="card"><h2>💎 توليد نيترو برو</h2><div class="form-group"><label>ويبهوك</label><input type="text" id="nitropro-webhook"></div><div class="grid-2"><div><label>العدد</label><input type="number" id="nitropro-count" value="500"></div><div><label>الخيوط</label><input type="number" id="nitropro-threads" value="10"></div></div><button class="btn" onclick="startNitroPro()">بدء</button></div></div>
+    <!-- 13. برومو 3 شهور -->
+    <div id="section-nitro-promo" class="section"><div class="card"><h2>👑 برومو 3 شهور</h2><div class="form-group"><label>ويبهوك</label><input type="text" id="nitropromo-webhook"></div><div class="grid-2"><div><label>العدد</label><input type="number" id="nitropromo-count" value="300"></div><div><label>الخيوط</label><input type="number" id="nitropromo-threads" value="8"></div></div><button class="btn" onclick="startNitroPromo()">بدء</button></div></div>
+    <!-- 14. دخول بالتوكن -->
+    <div id="section-token-login" class="section"><div class="card"><h2>🔐 دخول بالتوكن</h2><div class="form-group"><label>توكن الحساب</label><input type="password" id="tokenlogin-input"></div><button class="btn" onclick="tokenLogin()">دخول</button></div></div>
+    <!-- 15. دخول بوت -->
+    <div id="section-bot-login" class="section"><div class="card"><h2>🤖 دخول بوت</h2><a href="https://github.com/aiko-chan-ai/DiscordBotClient/releases/latest/download/DiscordBotClient-win-x64.exe" target="_blank" class="btn btn-outline">⬇️ تحميل</a></div></div>
+    <!-- 16. صيد اليوزرات -->
+    <div id="section-username-sniper" class="section"><div class="card"><h2>🎯 صيد اليوزرات</h2><div class="form-group"><label>توكن</label><input type="password" id="sniper-token"></div><div class="form-group"><label>نوع اليوزر</label><select id="sniper-type"><option value="semi-3">شبه ثلاثي</option><option value="semi-4">شبه رباعي</option><option value="custom">مخصص</option></select></div><div class="grid-2"><div><label>المحاولات</label><input type="number" id="sniper-count" value="100"></div></div><button class="btn" onclick="startSniper()">بدء</button></div></div>
+    <!-- 17. الإحصائيات -->
+    <div id="section-stats" class="section"><div class="card"><h2>📊 الإحصائيات</h2><div id="stats-container"></div></div></div>
+    <!-- 18. السجلات -->
+    <div id="section-logs" class="section"><div class="card"><h2>📋 السجلات</h2><div id="logs-container" style="max-height:400px;overflow-y:auto;"></div></div></div>
+</div>
 </main>
 
 <!-- Modal 2FA -->
