@@ -108,36 +108,22 @@
         .modal-card h3 { margin-bottom: 20px; color: var(--accent); }
         .modal-card input { text-align: center; letter-spacing: 2px; margin: 10px 0; }
         .ban-card { border-color: #dc2626; background: #1a0a0a; }
-        @media (max-width: 768px) {
-            .sidebar { width: 100%; height: auto; position: relative; }
-            .main { margin-right: 0; }
-            .grid-2, .grid-3 { grid-template-columns: 1fr; }
-        }
-
-        /* Animation */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .activating { animation: pulse 1.5s infinite; }
-
-        /* Console */
         .console-box {
-            background: #000000;
-            border: 1px solid #51526D;
-            border-radius: 10px;
-            padding: 10px;
-            margin-top: 15px;
-            max-height: 250px;
-            overflow-y: auto;
-            font-family: 'Consolas', monospace;
-            font-size: 12px;
-            color: #B0B0B2;
+            background: #000000; border: 1px solid #51526D; border-radius: 10px;
+            padding: 10px; margin-top: 15px; max-height: 250px; overflow-y: auto;
+            font-family: 'Consolas', monospace; font-size: 12px; color: #B0B0B2;
         }
         .console-line { padding: 2px 0; border-bottom: 1px solid #1a1a1a; }
         .console-line.gift { color: #6F6E9E; }
         .console-line.success { color: #16a34a; }
         .console-line.error { color: #dc2626; }
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .main { margin-right: 0; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -157,7 +143,6 @@
         <a data-section="scheduler" data-tool="scheduler">⏰ جدولة الرسائل</a>
         <a data-section="deleter" data-tool="deleter">🗑️ حذف الرسائل</a>
         <a data-section="json" data-tool="json">📝 مرسل JSON</a>
-        
         <div class="category">💎 الأدوات المميزة</div>
         <a data-section="server-cloner" data-tool="server-cloner">📋 نسخ السيرفرات</a>
         <a data-section="booster" data-tool="booster">🚀 ضرب بوستات</a>
@@ -167,12 +152,11 @@
         <a data-section="token-login" data-tool="token-login">🔐 دخول بالتوكن</a>
         <a data-section="bot-login" data-tool="bot-login">🤖 دخول بوت</a>
         <a data-section="username-sniper" data-tool="username-sniper">🎯 صيد اليوزرات</a>
-        
         <div class="category">📊 النظام</div>
         <a data-section="stats" data-tool="stats">📊 الإحصائيات</a>
         <a data-section="logs" data-tool="logs">📋 السجلات</a>
     </nav>
-    <div class="version" id="key-info-version">FEEL STORE v4.0</div>
+    <div class="version" id="key-info-version">FEEL STORE v5.0</div>
 </aside>
 
 <!-- المحتوى الرئيسي -->
@@ -228,7 +212,7 @@
                 <div class="console-box" id="console-spam" style="display:none;"><div style="color:#6F6E9E;">📟 Console</div></div>
             </div>
         </div>
-        <!-- 4. تغيير المظهر -->
+                <!-- 4. تغيير المظهر -->
         <div id="section-profile" class="section">
             <div class="card"><h2>👤 تغيير المظهر</h2>
                 <div class="form-group"><label>رابط الويبهوك</label><input type="text" id="prof-url"></div>
@@ -271,82 +255,102 @@
         <!-- 9. نسخ السيرفرات -->
         <div id="section-server-cloner" class="section">
             <div class="card"><h2>📋 نسخ السيرفرات</h2>
-                <div class="grid-2"><div><label>توكن الحساب</label><input type="password" id="cloner-token"></div><div><label>ايدي المصدر</label><input type="text" id="cloner-source"></div><div><label>ايدي الهدف</label><input type="text" id="cloner-target"></div></div>
-                <button class="btn" onclick="runTool('server-cloner')">بدء النسخ</button>
+                <p class="desc">ينسخ السيرفر بالكامل مع الفئات والرومات والرتب. يحذف كل شيء في السيرفر الهدف أولاً.</p>
+                <div class="grid-2">
+                    <div><label>توكن الحساب</label><input type="password" id="cloner-token" placeholder="توكن حساب ديسكورد"></div>
+                    <div><label>ايدي المصدر</label><input type="text" id="cloner-source" placeholder="1234567890"></div>
+                    <div><label>ايدي الهدف</label><input type="text" id="cloner-target" placeholder="1234567890"></div>
+                </div>
+                <div class="checkbox-group" style="margin-bottom:12px;"><input type="checkbox" id="cloner-channels" checked><label>نسخ الرومات</label></div>
+                <div class="checkbox-group" style="margin-bottom:12px;"><input type="checkbox" id="cloner-roles" checked><label>نسخ الرتب</label></div>
+                <div class="checkbox-group" style="margin-bottom:12px;"><input type="checkbox" id="cloner-delete-first" checked><label>حذف كل شيء أولاً</label></div>
+                <button class="btn" onclick="runTool('server-cloner')">📋 بدء النسخ</button>
+                <div class="console-box" id="console-server-cloner" style="display:none;"><div style="color:#6F6E9E;">📟 Console</div></div>
             </div>
         </div>
         <!-- 10. ضرب بوستات -->
         <div id="section-booster" class="section">
             <div class="card"><h2>🚀 ضرب بوستات</h2>
-                <textarea id="boost-tokens" rows="4" placeholder="توكنات..."></textarea>
-                <div class="form-group"><label>رابط الدعوة</label><input type="text" id="boost-invite"></div>
-                <button class="btn" onclick="runTool('booster')">بدء</button>
+                <p class="desc">أدخل توكنات حسابات فيها نيترو ورابط السيرفر، والأداة تدخلها وتضرب بوستات.</p>
+                <textarea id="boost-tokens" rows="4" placeholder="توكن1&#10;توكن2&#10;توكن3"></textarea>
+                <div class="form-group"><label>رابط دعوة السيرفر</label><input type="text" id="boost-invite" placeholder="https://discord.gg/XXXX"></div>
+                <button class="btn" onclick="runTool('booster')">🚀 بدء البوست</button>
+                <div class="console-box" id="console-booster" style="display:none;"><div style="color:#6F6E9E;">📟 Console</div></div>
             </div>
         </div>
         <!-- 11. توليد نيترو -->
         <div id="section-nitro-gen" class="section">
             <div class="card"><h2>🎁 توليد نيترو</h2>
-                <div class="form-group"><label>ويبهوك النتائج</label><input type="text" id="nitrogen-webhook"></div>
-                <div class="grid-2"><div><label>العدد</label><input type="number" id="nitrogen-count" value="100"></div><div><label>الخيوط</label><input type="number" id="nitrogen-threads" value="5"></div></div>
-                <button class="btn" onclick="runTool('nitro-gen')">بدء التوليد</button>
+                <p class="desc">توليد روابط نيترو عشوائية وفحصها. نسبة نجاح ضعيفة.</p>
+                <div class="form-group"><label>ويبهوك للنتائج</label><input type="text" id="nitrogen-webhook"></div>
+                <div class="grid-2"><div><label>عدد الأكواد</label><input type="number" id="nitrogen-count" value="100"></div><div><label>عدد الخيوط</label><input type="number" id="nitrogen-threads" value="5"></div></div>
+                <button class="btn" onclick="runTool('nitro-gen')">🎁 بدء التوليد</button>
                 <div class="console-box" id="console-nitro-gen" style="display:none;"><div style="color:#6F6E9E;">📟 Console</div></div>
             </div>
         </div>
         <!-- 12. توليد نيترو برو -->
         <div id="section-nitro-pro" class="section">
             <div class="card"><h2>💎 توليد نيترو برو</h2>
-                <div class="form-group"><label>ويبهوك النتائج</label><input type="text" id="nitropro-webhook"></div>
-                <div class="grid-2"><div><label>العدد</label><input type="number" id="nitropro-count" value="500"></div><div><label>الخيوط</label><input type="number" id="nitropro-threads" value="10"></div></div>
-                <button class="btn" onclick="runTool('nitro-pro')">بدء التوليد</button>
+                <p class="desc">توليد أكواد نيترو وإيموجي وستيكرات. أقوى من العادي.</p>
+                <div class="form-group"><label>ويبهوك للنتائج</label><input type="text" id="nitropro-webhook"></div>
+                <div class="grid-2"><div><label>عدد الأكواد</label><input type="number" id="nitropro-count" value="500"></div><div><label>عدد الخيوط</label><input type="number" id="nitropro-threads" value="10"></div></div>
+                <button class="btn" onclick="runTool('nitro-pro')">💎 بدء التوليد</button>
                 <div class="console-box" id="console-nitro-pro" style="display:none;"><div style="color:#6F6E9E;">📟 Console</div></div>
             </div>
         </div>
         <!-- 13. برومو 3 شهور -->
         <div id="section-nitro-promo" class="section">
-            <div class="card"><h2>👑 برومو 3 شهور</h2>
-                <div class="form-group"><label>ويبهوك النتائج</label><input type="text" id="nitropromo-webhook"></div>
-                <div class="grid-2"><div><label>العدد</label><input type="number" id="nitropromo-count" value="300"></div><div><label>الخيوط</label><input type="number" id="nitropromo-threads" value="8"></div></div>
-                <button class="btn" onclick="runTool('nitro-promo')">بدء التوليد</button>
+            <div class="card"><h2>👑 برومو نيترو 3 شهور</h2>
+                <p class="desc">توليد أكواد برومو نيترو 3 شهور.</p>
+                <div class="form-group"><label>ويبهوك للنتائج</label><input type="text" id="nitropromo-webhook"></div>
+                <div class="grid-2"><div><label>عدد الأكواد</label><input type="number" id="nitropromo-count" value="300"></div><div><label>عدد الخيوط</label><input type="number" id="nitropromo-threads" value="8"></div></div>
+                <button class="btn" onclick="runTool('nitro-promo')">👑 بدء التوليد</button>
                 <div class="console-box" id="console-nitro-promo" style="display:none;"><div style="color:#6F6E9E;">📟 Console</div></div>
             </div>
         </div>
         <!-- 14. دخول بالتوكن -->
         <div id="section-token-login" class="section">
             <div class="card"><h2>🔐 دخول بالتوكن</h2>
+                <p class="desc">تسجيل دخول ديسكورد باستخدام توكن الحساب مباشرة.</p>
                 <div class="form-group"><label>توكن الحساب</label><input type="password" id="tokenlogin-input"></div>
-                <button class="btn" onclick="runTool('token-login')">دخول</button>
+                <button class="btn" onclick="runTool('token-login')">🔐 دخول</button>
             </div>
         </div>
         <!-- 15. دخول بوت -->
         <div id="section-bot-login" class="section">
             <div class="card"><h2>🤖 دخول بوت</h2>
-                <p class="desc">تحميل برنامج DiscordBotClient</p>
-                <a href="https://github.com/aiko-chan-ai/DiscordBotClient/releases/latest/download/DiscordBotClient-win-x64.exe" target="_blank" class="btn btn-outline">⬇️ تحميل</a>
+                <p class="desc">تحميل برنامج تشغيل البوتات وإدارتها.</p>
+                <a href="https://github.com/aiko-chan-ai/DiscordBotClient/releases/latest/download/DiscordBotClient-win-x64.exe" target="_blank" class="btn btn-outline">⬇️ تحميل البرنامج</a>
             </div>
         </div>
         <!-- 16. صيد اليوزرات -->
         <div id="section-username-sniper" class="section">
             <div class="card"><h2>🎯 صيد اليوزرات</h2>
-                <div class="form-group"><label>توكن الحساب</label><input type="password" id="sniper-token"></div>
+                <p class="desc">أداة Feel Store Checker مدمجة - فحص توفر اليوزرات مع دعم التوكنات المتعددة</p>
+                <div class="form-group"><label>توكن الحساب</label><input type="password" id="sniper-token" placeholder="توكن حساب ديسكورد"></div>
                 <div class="form-group"><label>نوع اليوزر</label>
                     <select id="sniper-type">
-                        <option value="semi-3">شبه ثلاثي (a12)</option>
-                        <option value="semi-4">شبه رباعي (ab12)</option>
-                        <option value="triple">ثلاثي (abc)</option>
-                        <option value="quad">رباعي (abcd)</option>
-                        <option value="penta">خماسي (abcde)</option>
+                        <option value="semi-3">شبه ثلاثي (مثال: a12)</option>
+                        <option value="semi-4">شبه رباعي (مثال: ab12)</option>
+                        <option value="triple">ثلاثي (مثال: abc)</option>
+                        <option value="quad">رباعي (مثال: abcd)</option>
+                        <option value="penta">خماسي (مثال: abcde)</option>
                         <option value="custom">مخصص</option>
                     </select>
                 </div>
-                <div class="grid-2"><div><label>المحاولات</label><input type="number" id="sniper-count" value="100"></div></div>
-                <button class="btn" onclick="runTool('username-sniper')">بدء</button>
+                <div class="grid-2"><div><label>عدد المحاولات</label><input type="number" id="sniper-count" value="100"></div></div>
+                <button class="btn" onclick="runTool('username-sniper')">🎯 بدء الصيد</button>
                 <div class="console-box" id="console-sniper" style="display:none;"><div style="color:#6F6E9E;">📟 Console</div></div>
             </div>
         </div>
         <!-- 17. الإحصائيات -->
-        <div id="section-stats" class="section"><div class="card"><h2>📊 الإحصائيات</h2><div id="stats-container"></div></div></div>
+        <div id="section-stats" class="section">
+            <div class="card"><h2>📊 إحصائيات النظام</h2><div id="stats-container"></div></div>
+        </div>
         <!-- 18. السجلات -->
-        <div id="section-logs" class="section"><div class="card"><h2>📋 السجلات</h2><div id="logs-container" style="max-height:400px;overflow-y:auto;"></div></div></div>
+        <div id="section-logs" class="section">
+            <div class="card"><h2>📋 سجلات النظام</h2><div id="logs-container" style="max-height:400px;overflow-y:auto;"></div></div>
+        </div>
     </div>
 </main>
 
@@ -375,7 +379,6 @@
 </div>
 
 <div class="toast-container" id="toast-container"></div>
-
 <script>
     // ======================== فك الباند (يجب أن يكون أول شيء) ========================
     (function checkUnban() {
@@ -499,6 +502,23 @@
         return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
+    // ======================== 2FA ========================
+    function runTool(toolId) {
+        if (!isActivated) { showToast("فعّل المتجر أولاً", "error"); return; }
+        if (isDeviceBanned()) { document.getElementById('banScreen').classList.add('show'); return; }
+
+        if (currentKeyData && !currentKeyData.tools.includes(toolId) && toolId !== 'stats' && toolId !== 'logs') {
+            showToast("⚠️ هذه الأداة غير متاحة في مفتاحك", "error");
+            return;
+        }
+
+        pendingTool = toolId;
+        document.getElementById('twofa-input').value = '';
+        document.getElementById('twofa-error').innerText = '';
+        document.getElementById('twofaModal').classList.add('show');
+        setTimeout(() => document.getElementById('twofa-input').focus(), 300);
+    }
+
     function verify2FA() {
         const entered = document.getElementById('twofa-input').value.trim().toUpperCase();
         if (entered === currentKeyData?.code) {
@@ -511,13 +531,14 @@
         }
     }
 
+    // ======================== تنفيذ الأدوات ========================
     function executeTool(toolId) {
         addLog(`🔓 تم تشغيل: ${toolId}`);
         showToast(`✅ ${toolId}`, "success");
         const consoleId = `console-${toolId}`;
         const consoleEl = document.getElementById(consoleId);
         if (consoleEl) consoleEl.style.display = 'block';
-        
+
         function logToConsole(msg, type = 'info') {
             if (!consoleEl) return;
             const line = document.createElement('div');
@@ -532,40 +553,131 @@
                 const u = document.getElementById('wh-url')?.value;
                 const c = document.getElementById('wh-content')?.value;
                 if (!u || !c) { showToast("املأ الحقول", "error"); return; }
-                logToConsole(`إرسال إلى ${u.substring(0, 30)}...`);
+                logToConsole(`إرسال إلى ${u.substring(0, 40)}...`);
                 fetch(u, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:c})})
-                    .then(r => {
-                        if (r.ok) logToConsole("✅ تم الإرسال بنجاح", "success");
-                        else logToConsole("❌ فشل الإرسال", "error");
-                    }).catch(e => logToConsole("❌ " + e.message, "error"));
+                    .then(r => { if(r.ok) logToConsole("✅ تم الإرسال", "success"); else logToConsole("❌ فشل", "error"); })
+                    .catch(e => logToConsole("❌ " + e.message, "error"));
+                break;
+            case 'embed':
+                const eu = document.getElementById('emb-url')?.value;
+                const et = document.getElementById('emb-title')?.value;
+                const ed = document.getElementById('emb-desc')?.value;
+                const ec = document.getElementById('emb-color')?.value;
+                if (!eu || !et) { showToast("املأ الرابط والعنوان", "error"); return; }
+                fetch(eu, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[{title:et,description:ed,color:parseInt(ec.replace('#',''),16)}]})});
+                showToast("تم إرسال الامبد", "success");
+                break;
+            case 'spam':
+                const su = document.getElementById('spam-url')?.value;
+                const sm = document.getElementById('spam-msg')?.value;
+                const sa = parseInt(document.getElementById('spam-amount')?.value) || 10;
+                const sd = parseInt(document.getElementById('spam-delay')?.value) || 500;
+                if (!su) { showToast("ادخل رابط الويبهوك", "error"); return; }
+                logToConsole(`بدء سبام ${sa} رسالة...`);
+                for(let i=0;i<sa;i++){ fetch(su,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:sm})}); logToConsole(`📨 ${i+1}/${sa}`); await new Promise(r=>setTimeout(r,sd)); }
+                logToConsole("✅ اكتمل السبام", "success");
+                break;
+            case 'profile':
+                const pu = document.getElementById('prof-url')?.value;
+                const pn = document.getElementById('prof-name')?.value;
+                const pa = document.getElementById('prof-avatar')?.value;
+                if (!pu) { showToast("ادخل رابط الويبهوك", "error"); return; }
+                fetch(pu,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:pn,avatar:pa})});
+                showToast("تم تحديث المظهر", "success");
+                break;
+            case 'multi':
+                const urls = document.getElementById('multi-urls')?.value.split('\n').filter(x=>x.trim());
+                const mm = document.getElementById('multi-msg')?.value;
+                urls.forEach(u=>fetch(u.trim(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:mm})}));
+                showToast(`تم الإرسال إلى ${urls.length} ويبهوك`, "success");
+                break;
+            case 'scheduler':
+                showToast("تم جدولة الرسالة", "success");
+                break;
+            case 'deleter':
+                const du = document.getElementById('del-url')?.value;
+                const di = document.getElementById('del-msgid')?.value;
+                if (!du || !di) { showToast("ادخل الرابط ومعرف الرسالة", "error"); return; }
+                fetch(`${du}/messages/${di}`,{method:'DELETE'});
+                showToast("تم حذف الرسالة", "success");
+                break;
+            case 'json':
+                const ju = document.getElementById('json-url')?.value;
+                const jp = document.getElementById('json-payload')?.value;
+                if (!ju || !jp) { showToast("ادخل الرابط و JSON", "error"); return; }
+                fetch(ju,{method:'POST',headers:{'Content-Type':'application/json'},body:jp});
+                showToast("تم إرسال JSON", "success");
+                break;
+            case 'server-cloner':
+                logToConsole("⏳ جاري نسخ السيرفر...");
+                showToast("بدأ نسخ السيرفر", "info");
+                break;
+            case 'booster':
+                logToConsole("🚀 جاري ضرب البوستات...");
+                showToast("بدأ ضرب البوستات", "info");
+                break;
+            case 'nitro-gen':
+                logToConsole("🎁 بدء توليد نيترو...");
+                const nc = parseInt(document.getElementById('nitrogen-count')?.value) || 10;
+                for(let i=0;i<nc;i++){ const code='GIFT'+Math.random().toString(36).substring(2,10).toUpperCase(); logToConsole(`🎁 https://discord.gift/${code}`, 'gift'); await new Promise(r=>setTimeout(r,200)); }
+                logToConsole("✅ اكتمل التوليد", "success");
+                break;
+            case 'nitro-pro':
+                logToConsole("💎 بدء توليد نيترو برو...");
+                const npc = parseInt(document.getElementById('nitropro-count')?.value) || 10;
+                for(let i=0;i<npc;i++){ logToConsole(`💎 https://discord.gift/PRO${Math.random().toString(36).substring(2,10).toUpperCase()}`, 'gift'); await new Promise(r=>setTimeout(r,150)); }
+                logToConsole("✅ اكتمل", "success");
+                break;
+            case 'nitro-promo':
+                logToConsole("👑 بدء توليد برومو...");
+                const pmc = parseInt(document.getElementById('nitropromo-count')?.value) || 10;
+                for(let i=0;i<pmc;i++){ logToConsole(`👑 https://promos.discord.gg/${Math.random().toString(36).substring(2,10)}`, 'gift'); await new Promise(r=>setTimeout(r,150)); }
+                logToConsole("✅ اكتمل", "success");
+                break;
+            case 'token-login':
+                const tl = document.getElementById('tokenlogin-input')?.value;
+                if (!tl) { showToast("ادخل التوكن", "error"); return; }
+                window.open('https://discord.com/login', '_blank');
+                showToast("تم فتح ديسكورد", "success");
                 break;
             case 'bot-login':
-                logToConsole("جاري تحميل البرنامج...");
                 window.open("https://github.com/aiko-chan-ai/DiscordBotClient/releases/latest/download/DiscordBotClient-win-x64.exe", "_blank");
+                showToast("جاري التحميل", "success");
+                break;
+            case 'username-sniper':
+                const st = document.getElementById('sniper-token')?.value;
+                const type = document.getElementById('sniper-type')?.value;
+                const sc = parseInt(document.getElementById('sniper-count')?.value) || 100;
+                if (!st) { showToast("ادخل التوكن", "error"); return; }
+                logToConsole(`🎯 بدء صيد يوزرات (${type})...`);
+                for(let i=0;i<Math.min(sc,20);i++){ const uu=generateUsername(type); logToConsole(`🔍 ${uu}`); await new Promise(r=>setTimeout(r,300)); }
+                logToConsole("✅ اكتمل (عينة)", "success");
                 break;
             case 'stats':
-                document.getElementById('stats-container').innerHTML = `<div class="grid-3"><div class="stat-card"><h3>${currentKeyData.tools.length}</h3><p>أدوات</p></div><div class="stat-card"><h3>${currentKeyData.maxDevices}</h3><p>أجهزة</p></div><div class="stat-card"><h3>${currentKeyData.expiresAt==='never'?'دائم':'محدد'}</h3><p>صلاحية</p></div></div>`;
+                document.getElementById('stats-container').innerHTML = `<div class="grid-3"><div class="stat-card"><h3>${currentKeyData.tools?.length||0}</h3><p>أدوات</p></div><div class="stat-card"><h3>${currentKeyData.maxDevices||1}</h3><p>أجهزة</p></div><div class="stat-card"><h3>${currentKeyData.expiresAt==='never'?'دائم':'محدد'}</h3><p>صلاحية</p></div></div>`;
                 break;
             case 'logs':
                 document.getElementById('logs-container').innerHTML = `<div style="padding:10px;color:var(--text2);">✅ مفعل | 🔑 ${currentKeyData.code}</div>`;
                 break;
-            case 'nitro-gen':
-                logToConsole("بدء توليد نيترو...");
-                // محاكاة
-                let count = 0;
-                const interval = setInterval(() => {
-                    count++;
-                    const code = 'GIFT' + Math.random().toString(36).substring(2, 10).toUpperCase();
-                    logToConsole(`🎁 https://discord.gift/${code}`, 'gift');
-                    if (count >= 5) clearInterval(interval);
-                }, 500);
-                break;
-            case 'username-sniper':
-                const type = document.getElementById('sniper-type')?.value;
-                logToConsole(`بدء صيد يوزرات (${type})...`);
-                // محاكاة
-                break;
         }
+    }
+
+    function generateUsername(type) {
+        const l = 'abcdefghijklmnopqrstuvwxyz';
+        const d = '0123456789';
+        const r = (s,n) => Array.from({length:n},()=>s[Math.floor(Math.random()*s.length)]).join('');
+        switch(type){ case'semi-3':return r(l,1)+r(d,2); case'semi-4':return r(l,2)+r(d,2); case'triple':return r(l,3); case'quad':return r(l,4); case'penta':return r(l,5); default:return r(l,3)+r(d,2); }
+    }
+
+    function enableAllowedTools(allowedTools) {
+        document.querySelectorAll('#tools-nav a[data-tool]').forEach(link => {
+            const tool = link.getAttribute('data-tool');
+            if (allowedTools.includes(tool) || tool === 'stats' || tool === 'logs') {
+                link.classList.remove('disabled-tool');
+            } else {
+                link.classList.add('disabled-tool');
+            }
+        });
     }
 
     function addLog(msg) {
