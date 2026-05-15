@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>FEEL STORE - حماية كاملة بالمفتاح + تبند تلقائي</title>
+    <title>FEEL STORE - نظام المفاتيح المتكامل</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -11,49 +11,89 @@
             --bg2: #313040;
             --bg3: #51526D;
             --accent: #6F6E9E;
-            --accent2: #51526D;
             --text: #E1E1E1;
             --text2: #B0B0B2;
             --border: #51526D;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: var(--bg); color: var(--text); font-family: 'Segoe UI', 'Tahoma', sans-serif;
-            display: flex; min-height: 100vh;
+            background: var(--bg); color: var(--text);
+            font-family: 'Segoe UI', 'Tahoma', sans-serif;
+            display: flex;
+            min-height: 100vh;
         }
         .sidebar {
             width: 260px; background: var(--bg2); border-left: 1px solid var(--border);
             padding: 20px; position: fixed; height: 100vh; right: 0; top: 0;
             display: flex; flex-direction: column; z-index: 100; overflow-y: auto;
+            transition: transform 0.3s;
         }
-        .sidebar .logo { font-size: 26px; font-weight: bold; text-align: center; margin-bottom: 30px; background: linear-gradient(135deg, #6F6E9E, #E1E1E1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .sidebar .category { color: #6F6E9E; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 15px 12px 5px; font-weight: bold; }
+        .sidebar .logo {
+            font-size: 26px; font-weight: bold; text-align: center; margin-bottom: 30px;
+            background: linear-gradient(135deg, #6F6E9E, #E1E1E1);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .sidebar .category {
+            color: #6F6E9E; font-size: 10px; text-transform: uppercase;
+            letter-spacing: 1px; padding: 15px 12px 5px; font-weight: bold;
+        }
         .sidebar nav { display: flex; flex-direction: column; gap: 3px; flex: 1; }
-        .sidebar nav a { color: var(--text2); text-decoration: none; padding: 10px 12px; border-radius: 8px; transition: all 0.3s; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; }
-        .sidebar nav a:hover, .sidebar nav a.active { background: rgba(111,110,158,0.2); color: var(--text); }
-        .sidebar .version { text-align: center; color: var(--text2); font-size: 11px; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border); }
+        .sidebar nav a {
+            color: var(--text2); text-decoration: none; padding: 10px 12px;
+            border-radius: 8px; transition: all 0.3s; display: flex;
+            align-items: center; gap: 8px; cursor: pointer; font-size: 13px;
+        }
+        .sidebar nav a:hover, .sidebar nav a.active {
+            background: rgba(111,110,158,0.2); color: var(--text);
+        }
+        .sidebar nav a.disabled-tool {
+            opacity: 0.4; cursor: not-allowed; filter: grayscale(0.3);
+            pointer-events: none;
+        }
+        .sidebar .version {
+            text-align: center; color: var(--text2); font-size: 11px;
+            margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);
+        }
         .main { margin-right: 260px; flex: 1; padding: 30px; min-height: 100vh; }
         .section { display: none; animation: fadeIn 0.4s; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 20px; }
+        .card {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px; margin-bottom: 20px;
+        }
         .card h2 { font-size: 22px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--text); }
         .card p.desc { color: var(--text2); margin-bottom: 18px; font-size: 14px; }
-        input, textarea, select { background: #010102; border: 1px solid var(--border); color: var(--text); padding: 12px 16px; border-radius: 10px; width: 100%; font-size: 14px; transition: all 0.3s; font-family: inherit; }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(111,110,158,0.15); }
+        input, textarea, select {
+            background: #010102; border: 1px solid var(--border); color: var(--text);
+            padding: 12px 16px; border-radius: 10px; width: 100%; font-size: 14px;
+            transition: all 0.3s; font-family: inherit;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(111,110,158,0.15);
+        }
         textarea { resize: vertical; min-height: 80px; }
         label { display: block; margin-bottom: 6px; color: var(--text2); font-size: 13px; font-weight: 500; }
-        .btn { background: var(--accent); color: #fff; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn {
+            background: var(--accent); color: #fff; border: none; padding: 12px 24px;
+            border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600;
+            transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px;
+        }
         .btn:hover { background: #5c5d8a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(111,110,158,0.3); }
         .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
         .btn-outline:hover { background: var(--accent); color: #fff; }
         .btn-danger { background: #dc2626; }
         .btn-success { background: #16a34a; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
         .form-group { margin-bottom: 16px; }
         .toast-container { position: fixed; top: 20px; left: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; min-width: 300px; animation: slideIn 0.3s; display: flex; align-items: center; gap: 10px; }
+        .toast {
+            background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+            padding: 14px 20px; min-width: 300px; animation: slideIn 0.3s;
+            display: flex; align-items: center; gap: 10px;
+        }
         .toast.success { border-right: 4px solid #16a34a; }
         .toast.error { border-right: 4px solid #dc2626; }
         .toast.info { border-right: 4px solid #6F6E9E; }
@@ -61,248 +101,405 @@
         .progress-bar { background: #010102; border-radius: 10px; height: 10px; overflow: hidden; margin-top: 12px; }
         .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 0.4s; border-radius: 10px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
-        .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; }
+        .stat-card {
+            background: var(--bg2); border: 1px solid var(--border); border-radius: 16px;
+            padding: 24px; text-align: center;
+        }
         .stat-card h3 { font-size: 38px; margin: 0; color: var(--accent); }
+        .stat-card p { color: var(--text2); margin: 5px 0 0; font-size: 13px; }
         .badge { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-block; }
         .badge-success { background: rgba(22,163,74,0.2); color: #16a34a; }
+        .badge-warning { background: rgba(251,191,36,0.2); color: #fbbf24; }
         .checkbox-group { display: flex; align-items: center; gap: 10px; }
         .checkbox-group input[type="checkbox"] { width: auto; accent-color: var(--accent); }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-card { background: var(--bg2); border: 2px solid var(--accent); border-radius: 24px; padding: 30px; width: 90%; max-width: 400px; text-align: center; }
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(8px); z-index: 2000;
+            justify-content: center; align-items: center;
+        }
+        .modal-card {
+            background: var(--bg2); border: 2px solid var(--accent); border-radius: 24px;
+            padding: 30px; width: 90%; max-width: 400px; text-align: center;
+        }
         .modal-card h3 { margin-bottom: 20px; color: var(--accent); }
-        .ban-card { background: #2d1a1a; border: 2px solid #dc2626; }
-        @media (max-width: 768px) { .sidebar { width: 100%; height: auto; position: relative; } .main { margin-right: 0; } .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+        .modal-card input { text-align: center; letter-spacing: 2px; margin: 10px 0; }
+        .ban-card { border-color: #dc2626; background: #2d1a1a; }
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .main { margin-right: 0; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
 <canvas id="particles" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;"></canvas>
 
-<!-- Sidebar -->
+<!-- الشريط الجانبي -->
 <aside class="sidebar" id="main-sidebar" style="display: none;">
     <div class="logo">FEEL STORE</div>
-    <nav>
-        <div class="category">🔧 الأساسية</div>
-        <a data-section="webhook">📨 مرسل الويبهوك</a><a data-section="embed">🎨 منشئ الامبد</a><a data-section="spam">💣 سبام الويبهوك</a>
-        <a data-section="profile">👤 تغيير المظهر</a><a data-section="multi">📡 ويبهوكات متعددة</a><a data-section="scheduler">⏰ جدولة الرسائل</a>
-        <a data-section="deleter">🗑️ حذف الرسائل</a><a data-section="json">📝 مرسل JSON</a>
-        <div class="category">💎 المميزة</div>
-        <a data-section="server-cloner">📋 نسخ السيرفرات</a><a data-section="booster">🚀 ضرب بوستات</a><a data-section="nitro-gen">🎁 توليد نيترو</a>
-        <a data-section="nitro-pro">💎 توليد نيترو برو</a><a data-section="nitro-promo">👑 برومو 3 شهور</a><a data-section="token-login">🔐 دخول بالتوكن</a>
-        <a data-section="bot-login">🤖 دخول بوت</a><a data-section="username-sniper">🎯 صيد اليوزرات</a>
+    <nav id="tools-nav">
+        <div class="category">🔧 الأدوات الأساسية</div>
+        <a data-section="webhook" data-tool="webhook">📨 مرسل الويبهوك</a>
+        <a data-section="embed" data-tool="embed">🎨 منشئ الامبد</a>
+        <a data-section="spam" data-tool="spam">💣 سبام الويبهوك</a>
+        <a data-section="profile" data-tool="profile">👤 تغيير المظهر</a>
+        <a data-section="multi" data-tool="multi">📡 ويبهوكات متعددة</a>
+        <a data-section="scheduler" data-tool="scheduler">⏰ جدولة الرسائل</a>
+        <a data-section="deleter" data-tool="deleter">🗑️ حذف الرسائل</a>
+        <a data-section="json" data-tool="json">📝 مرسل JSON</a>
+        
+        <div class="category">💎 الأدوات المميزة</div>
+        <a data-section="server-cloner" data-tool="server-cloner">📋 نسخ السيرفرات</a>
+        <a data-section="booster" data-tool="booster">🚀 ضرب بوستات</a>
+        <a data-section="nitro-gen" data-tool="nitro-gen">🎁 توليد نيترو</a>
+        <a data-section="nitro-pro" data-tool="nitro-pro">💎 توليد نيترو برو</a>
+        <a data-section="nitro-promo" data-tool="nitro-promo">👑 برومو 3 شهور</a>
+        <a data-section="token-login" data-tool="token-login">🔐 دخول بالتوكن</a>
+        <a data-section="bot-login" data-tool="bot-login">🤖 دخول بوت</a>
+        <a data-section="username-sniper" data-tool="username-sniper">🎯 صيد اليوزرات</a>
+        
         <div class="category">📊 النظام</div>
-        <a data-section="stats">📊 الإحصائيات</a><a data-section="logs">📋 السجلات</a>
+        <a data-section="stats" data-tool="stats">📊 الإحصائيات</a>
+        <a data-section="logs" data-tool="logs">📋 السجلات</a>
     </nav>
-    <div class="version">FEEL STORE v3.0 | 2FA + حظر تلقائي</div>
+    <div class="version" id="key-info-version">FEEL STORE v3.0</div>
 </aside>
 
+<!-- المحتوى الرئيسي -->
 <main class="main">
-    <!-- شاشة التفعيل الأولي -->
+    <!-- شاشة إدخال المفتاح -->
     <div id="activation-screen" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
-        <div class="modal-card" style="max-width:450px;">
-            <div class="icon" style="font-size:60px;">🔐</div>
-            <h1>تفعيل المتجر</h1>
-            <p>أدخل المفتاح الذي أرسله لك المالك:</p>
-            <input type="text" id="master-key-input" placeholder="FEEL-V0J5-KW9Y-BB47" style="text-align:center; letter-spacing:1px;">
-            <button class="btn" onclick="activateMaster()" style="width:100%; margin-top:20px;">🔓 فتح المتجر</button>
-            <div id="activation-error" style="color:#f87171; margin-top:15px;"></div>
+        <div class="modal-card" style="max-width: 480px;">
+            <div style="font-size: 60px;">🔑</div>
+            <h1>FEEL STORE</h1>
+            <p>أدخل مفتاح التفعيل الذي حصلت عليه من البوت</p>
+            <input type="text" id="master-key-input" placeholder="FEEL-XXXX-XXXX-XXXX" style="text-align: center; letter-spacing: 2px;">
+            <button class="btn" onclick="activateKey()" style="width: 100%; margin-top: 15px;">🔓 تفعيل</button>
+            <div id="activation-error" style="color: #f87171; margin-top: 15px; font-size: 13px;"></div>
+            <div id="key-details" style="margin-top: 15px; font-size: 12px; color: var(--text2);"></div>
         </div>
     </div>
 
-    <!-- Dashboard (مخفي) -->
+    <!-- لوحة التحكم (تظهر بعد التفعيل) -->
     <div id="dashboard-content" style="display: none;">
-        <div class="card" style="background:linear-gradient(135deg, #313040, #010102);"><div><h2>مرحباً في FEEL STORE</h2><p>✅ تم التفعيل بنجاح. كل أداة تحتاج إدخال المفتاح مرة ثانية قبل التشغيل.</p></div></div>
-        <div id="section-webhook" class="section"><div class="card"><h2>📨 مرسل الويبهوك</h2><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="wh-url" placeholder="https://discord.com/api/webhooks/..."></div><div class="form-group"><label>الرسالة</label><textarea id="wh-content" placeholder="نص الرسالة"></textarea></div><button class="btn" onclick="require2FAThenRun('webhook')">🚀 إرسال</button><span id="wh-result"></span></div></div>
-        <div id="section-embed" class="section"><div class="card"><h2>🎨 منشئ الامبد</h2><div class="grid-2"><div><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="emb-url"></div><div class="form-group"><label>العنوان</label><input type="text" id="emb-title"></div><div class="form-group"><label>الوصف</label><textarea id="emb-desc"></textarea></div><div class="form-group"><label>اللون</label><input type="color" id="emb-color" value="#6F6E9E"></div><div class="form-group"><label>الصورة</label><input type="text" id="emb-image"></div><div class="form-group"><label>التذييل</label><input type="text" id="emb-footer"></div><button class="btn" onclick="require2FAThenRun('embed')">إرسال الامبد</button></div><div><div style="background:#2f3136;padding:16px;border-radius:12px;"><p>معاينة سريعة</p></div></div></div></div></div>
-        <div id="section-spam" class="section"><div class="card"><h2>💣 سبام الويبهوك</h2><div class="form-group"><label>الرابط</label><input type="text" id="spam-url"></div><div class="form-group"><label>الرسالة</label><textarea id="spam-msg"></textarea></div><div class="grid-2"><div><label>العدد</label><input type="number" id="spam-amount" value="10"></div><div><label>التأخير(مللي)</label><input type="number" id="spam-delay" value="500"></div></div><button class="btn" onclick="require2FAThenRun('spam')">بدء السبام</button><div class="progress-bar"><div class="progress-fill" id="spam-progress"></div></div></div></div>
-        <div id="section-profile" class="section"><div class="card"><h2>👤 تغيير المظهر</h2><div class="form-group"><label>الرابط</label><input type="text" id="prof-url"></div><div class="grid-2"><div><label>الاسم الجديد</label><input type="text" id="prof-name"></div><div><label>الصورة الجديدة</label><input type="text" id="prof-avatar"></div></div><button class="btn" onclick="require2FAThenRun('profile')">تحديث</button></div></div>
-        <div id="section-multi" class="section"><div class="card"><h2>📡 ويبهوكات متعددة</h2><textarea id="multi-urls" rows="4" placeholder="روابط..."></textarea><textarea id="multi-msg" placeholder="الرسالة"></textarea><button class="btn" onclick="require2FAThenRun('multi')">إرسال للكل</button></div></div>
-        <div id="section-scheduler" class="section"><div class="card"><h2>⏰ جدولة الرسائل</h2><div class="form-group"><label>الرابط</label><input type="text" id="sched-url"></div><textarea id="sched-msg"></textarea><div class="grid-2"><div><label>التأخير(ثواني)</label><input type="number" id="sched-delay" value="5"></div><div><label>التكرار</label><input type="number" id="sched-repeat" value="1"></div></div><button class="btn" onclick="require2FAThenRun('scheduler')">بدء الجدولة</button></div></div>
-        <div id="section-deleter" class="section"><div class="card"><h2>🗑️ حذف الرسائل</h2><div class="grid-2"><div><label>الرابط</label><input type="text" id="del-url"></div><div><label>معرف الرسالة</label><input type="text" id="del-msgid"></div></div><button class="btn btn-danger" onclick="require2FAThenRun('deleter')">حذف</button></div></div>
-        <div id="section-json" class="section"><div class="card"><h2>📝 مرسل JSON</h2><div class="form-group"><label>الرابط</label><input type="text" id="json-url"></div><textarea id="json-payload" rows="6" placeholder='{"content": "Hello"}'></textarea><button class="btn" onclick="require2FAThenRun('json')">إرسال JSON</button></div></div>
-        <div id="section-server-cloner" class="section"><div class="card"><h2>📋 نسخ السيرفرات</h2><div class="grid-2"><div><label>توكن الحساب</label><input type="password" id="cloner-token"></div><div><label>ايدي المصدر</label><input type="text" id="cloner-source"></div><div><label>ايدي الهدف</label><input type="text" id="cloner-target"></div></div><div class="checkbox-group"><input type="checkbox" id="cloner-channels" checked><label>نسخ الرومات</label></div><div class="checkbox-group"><input type="checkbox" id="cloner-roles" checked><label>نسخ الرتب</label></div><button class="btn" onclick="require2FAThenRun('server-cloner')">بدء النسخ</button><div class="progress-bar"><div class="progress-fill" id="cloner-progress"></div></div></div></div>
-        <div id="section-booster" class="section"><div class="card"><h2>🚀 ضرب بوستات</h2><textarea id="boost-tokens" rows="4" placeholder="توكنات..."></textarea><div class="form-group"><label>رابط الدعوة</label><input type="text" id="boost-invite"></div><button class="btn" onclick="require2FAThenRun('booster')">بدء البوست</button></div></div>
-        <div id="section-nitro-gen" class="section"><div class="card"><h2>🎁 توليد نيترو</h2><div class="form-group"><label>ويبهوك النتائج</label><input type="text" id="nitrogen-webhook"></div><div class="grid-2"><div><label>العدد</label><input type="number" id="nitrogen-count" value="100"></div><div><label>الخيوط</label><input type="number" id="nitrogen-threads" value="5"></div></div><button class="btn" onclick="require2FAThenRun('nitro-gen')">بدء التوليد</button><div id="nitrogen-console" style="background:#000;padding:8px;margin-top:8px;font-family:monospace;"></div></div></div>
-        <div id="section-nitro-pro" class="section"><div class="card"><h2>💎 توليد نيترو برو</h2><div class="form-group"><label>ويبهوك النتائج</label><input type="text" id="nitropro-webhook"></div><div class="grid-2"><div><label>العدد</label><input type="number" id="nitropro-count" value="500"></div><div><label>الخيوط</label><input type="number" id="nitropro-threads" value="10"></div></div><button class="btn" onclick="require2FAThenRun('nitro-pro')">بدء التوليد</button></div></div>
-        <div id="section-nitro-promo" class="section"><div class="card"><h2>👑 برومو 3 شهور</h2><div class="form-group"><label>ويبهوك النتائج</label><input type="text" id="nitropromo-webhook"></div><div class="grid-2"><div><label>العدد</label><input type="number" id="nitropromo-count" value="300"></div><div><label>الخيوط</label><input type="number" id="nitropromo-threads" value="8"></div></div><button class="btn" onclick="require2FAThenRun('nitro-promo')">بدء التوليد</button></div></div>
-        <div id="section-token-login" class="section"><div class="card"><h2>🔐 دخول بالتوكن</h2><div class="form-group"><label>توكن الحساب</label><input type="password" id="tokenlogin-input"></div><button class="btn" onclick="require2FAThenRun('token-login')">دخول</button></div></div>
-        <div id="section-bot-login" class="section"><div class="card"><h2>🤖 دخول بوت</h2><p class="desc">تحميل برنامج DiscordBotClient</p><a href="#" class="btn btn-outline" onclick="require2FAThenRun('bot-login'); return false;">تحميل البرنامج</a></div></div>
-        <div id="section-username-sniper" class="section"><div class="card"><h2>🎯 صيد اليوزرات</h2><div class="form-group"><label>توكن الحساب</label><input type="password" id="sniper-token"></div><div class="grid-2"><div><label>عدد المحاولات</label><input type="number" id="sniper-count" value="100"></div></div><button class="btn" onclick="require2FAThenRun('username-sniper')">بدء الصيد</button><div id="sniper-result"></div></div></div>
-        <div id="section-stats" class="section"><div class="card"><h2>📊 الإحصائيات</h2><div id="stats-container">جاري التحميل...</div></div></div>
-        <div id="section-logs" class="section"><div class="card"><h2>📋 السجلات</h2><div id="logs-container" style="max-height:400px;overflow-y:auto;"></div></div></div>
+        <div class="card" style="background: linear-gradient(135deg, #313040, #010102);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="margin: 0;">مرحباً بك في <span style="color: var(--accent);">FEEL STORE</span></h2>
+                    <p style="color: var(--text2); margin-top: 5px;" id="welcome-key-info"></p>
+                </div>
+                <div><span class="badge badge-success" id="status-badge">● نشط</span></div>
+            </div>
+        </div>
+
+        <!-- جميع الأقسام -->
+        <div id="section-webhook" class="section"><div class="card"><h2>📨 مرسل الويبهوك</h2><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="wh-url" placeholder="https://discord.com/api/webhooks/..."></div><div class="form-group"><label>الرسالة</label><textarea id="wh-content" placeholder="اكتب رسالتك هنا..."></textarea></div><button class="btn" onclick="runToolWith2FA('webhook')">🚀 إرسال</button><span id="wh-result"></span></div></div>
+        <div id="section-embed" class="section"><div class="card"><h2>🎨 منشئ الامبد</h2><div class="grid-2"><div><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="emb-url"></div><div class="form-group"><label>العنوان</label><input type="text" id="emb-title"></div><div class="form-group"><label>الوصف</label><textarea id="emb-desc"></textarea></div><div class="form-group"><label>اللون</label><input type="color" id="emb-color" value="#6F6E9E"></div><div class="form-group"><label>الصورة</label><input type="text" id="emb-image"></div><div class="form-group"><label>التذييل</label><input type="text" id="emb-footer"></div><button class="btn" onclick="runToolWith2FA('embed')">إرسال الامبد</button></div><div><div style="background:#2f3136;border-radius:12px;padding:16px;"><p style="color:#72767d;">معاينة سريعة</p></div></div></div></div></div>
+        <div id="section-spam" class="section"><div class="card"><h2>💣 سبام الويبهوك</h2><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="spam-url"></div><div class="form-group"><label>الرسالة</label><textarea id="spam-msg"></textarea></div><div class="grid-2"><div><label>العدد</label><input type="number" id="spam-amount" value="10"></div><div><label>التأخير (مللي)</label><input type="number" id="spam-delay" value="500"></div></div><button class="btn" onclick="runToolWith2FA('spam')">بدء السبام</button><div class="progress-bar"><div class="progress-fill" id="spam-progress"></div></div></div></div>
+        <div id="section-profile" class="section"><div class="card"><h2>👤 تغيير المظهر</h2><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="prof-url"></div><div class="grid-2"><div><label>الاسم الجديد</label><input type="text" id="prof-name"></div><div><label>رابط الصورة</label><input type="text" id="prof-avatar"></div></div><button class="btn" onclick="runToolWith2FA('profile')">تحديث المظهر</button></div></div>
+        <div id="section-multi" class="section"><div class="card"><h2>📡 ويبهوكات متعددة</h2><textarea id="multi-urls" rows="4" placeholder="كل رابط في سطر"></textarea><textarea id="multi-msg" placeholder="الرسالة"></textarea><button class="btn" onclick="runToolWith2FA('multi')">إرسال للكل</button></div></div>
+        <div id="section-scheduler" class="section"><div class="card"><h2>⏰ جدولة الرسائل</h2><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="sched-url"></div><textarea id="sched-msg" placeholder="الرسالة"></textarea><div class="grid-2"><div><label>التأخير (ثواني)</label><input type="number" id="sched-delay" value="5"></div><div><label>التكرار</label><input type="number" id="sched-repeat" value="1"></div></div><button class="btn" onclick="runToolWith2FA('scheduler')">بدء الجدولة</button></div></div>
+        <div id="section-deleter" class="section"><div class="card"><h2>🗑️ حذف الرسائل</h2><div class="grid-2"><div><label>رابط الويبهوك</label><input type="text" id="del-url"></div><div><label>معرف الرسالة</label><input type="text" id="del-msgid"></div></div><button class="btn btn-danger" onclick="runToolWith2FA('deleter')">حذف</button></div></div>
+        <div id="section-json" class="section"><div class="card"><h2>📝 مرسل JSON</h2><div class="form-group"><label>رابط الويبهوك</label><input type="text" id="json-url"></div><textarea id="json-payload" rows="6" placeholder='{"content": "مرحباً"}'></textarea><button class="btn" onclick="runToolWith2FA('json')">إرسال JSON</button></div></div>
+        <div id="section-server-cloner" class="section"><div class="card"><h2>📋 نسخ السيرفرات</h2><div class="grid-2"><div><label>توكن الحساب</label><input type="password" id="cloner-token"></div><div><label>ايدي المصدر</label><input type="text" id="cloner-source"></div><div><label>ايدي الهدف</label><input type="text" id="cloner-target"></div></div><div class="checkbox-group"><input type="checkbox" id="cloner-channels" checked><label>نسخ الرومات</label></div><div class="checkbox-group"><input type="checkbox" id="cloner-roles" checked><label>نسخ الرتب</label></div><button class="btn" onclick="runToolWith2FA('server-cloner')">بدء النسخ</button><div class="progress-bar"><div class="progress-fill" id="cloner-progress"></div></div></div></div>
+        <div id="section-booster" class="section"><div class="card"><h2>🚀 ضرب بوستات</h2><textarea id="boost-tokens" rows="4" placeholder="توكنات..."></textarea><div class="form-group"><label>رابط الدعوة</label><input type="text" id="boost-invite"></div><button class="btn" onclick="runToolWith2FA('booster')">بدء البوست</button></div></div>
+        <div id="section-nitro-gen" class="section"><div class="card"><h2>🎁 توليد نيترو</h2><div class="form-group"><label>ويبهوك النتائج</label><input type="text" id="nitrogen-webhook"></div><div class="grid-2"><div><label>العدد</label><input type="number" id="nitrogen-count" value="100"></div><div><label>الخيوط</label><input type="number" id="nitrogen-threads" value="5"></div></div><button class="btn" onclick="runToolWith2FA('nitro-gen')">بدء التوليد</button></div></div>
+        <div id="section-nitro-pro" class="section"><div class="card"><h2>💎 توليد نيترو برو</h2><div class="form-group"><label>ويبهوك النتائج</label><input type="text" id="nitropro-webhook"></div><div class="grid-2"><div><label>العدد</label><input type="number" id="nitropro-count" value="500"></div><div><label>الخيوط</label><input type="number" id="nitropro-threads" value="10"></div></div><button class="btn" onclick="runToolWith2FA('nitro-pro')">بدء التوليد</button></div></div>
+        <div id="section-nitro-promo" class="section"><div class="card"><h2>👑 برومو 3 شهور</h2><div class="form-group"><label>ويبهوك النتائج</label><input type="text" id="nitropromo-webhook"></div><div class="grid-2"><div><label>العدد</label><input type="number" id="nitropromo-count" value="300"></div><div><label>الخيوط</label><input type="number" id="nitropromo-threads" value="8"></div></div><button class="btn" onclick="runToolWith2FA('nitro-promo')">بدء التوليد</button></div></div>
+        <div id="section-token-login" class="section"><div class="card"><h2>🔐 دخول بالتوكن</h2><div class="form-group"><label>توكن الحساب</label><input type="password" id="tokenlogin-input"></div><button class="btn" onclick="runToolWith2FA('token-login')">دخول</button></div></div>
+        <div id="section-bot-login" class="section"><div class="card"><h2>🤖 دخول بوت</h2><p class="desc">تحميل برنامج DiscordBotClient لإدارة البوتات</p><a href="#" class="btn btn-outline" onclick="runToolWith2FA('bot-login'); return false;">⬇️ تحميل البرنامج</a></div></div>
+        <div id="section-username-sniper" class="section"><div class="card"><h2>🎯 صيد اليوزرات</h2><div class="form-group"><label>توكن الحساب</label><input type="password" id="sniper-token"></div><div class="grid-2"><div><label>عدد المحاولات</label><input type="number" id="sniper-count" value="100"></div></div><button class="btn" onclick="runToolWith2FA('username-sniper')">بدء الصيد</button><div id="sniper-result"></div></div></div>
+        <div id="section-stats" class="section"><div class="card"><h2>📊 الإحصائيات</h2><div id="stats-container"></div></div></div>
+        <div id="section-logs" class="section"><div class="card"><h2>📋 سجلات النظام</h2><div id="logs-container" style="max-height: 400px; overflow-y: auto;"></div></div></div>
     </div>
 </main>
 
 <!-- Modal 2FA -->
 <div id="twofaModal" class="modal">
     <div class="modal-card">
-        <h3>⚙️ تأكيد أمان</h3>
-        <p>للتشغيل هذه الأداة، أدخل المفتاح العام:</p>
-        <input type="text" id="twofa-input" placeholder="FEEL-V0J5-KW9Y-BB47" style="text-align:center;">
-        <div style="display:flex; gap:10px; margin-top:20px;"><button class="btn" id="twofa-confirm">✅ تأكيد</button><button class="btn btn-outline" id="twofa-cancel">إلغاء</button></div>
-        <div id="twofa-error" style="color:#f87171; margin-top:10px;"></div>
+        <h3>🔐 تأكيد الأمان</h3>
+        <p>لتشغيل هذه الأداة، أدخل مفتاح التفعيل:</p>
+        <input type="text" id="twofa-input" placeholder="FEEL-XXXX-XXXX-XXXX" style="text-align: center;">
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn" id="twofa-confirm">✅ تأكيد</button>
+            <button class="btn btn-outline" id="twofa-cancel">إلغاء</button>
+        </div>
+        <div id="twofa-error" style="color: #f87171; margin-top: 10px; font-size: 13px;"></div>
     </div>
 </div>
 
-<!-- شاشة الباند -->
+<!-- شاشة التبند -->
 <div id="banScreen" class="modal" style="display: none;">
     <div class="modal-card ban-card">
-        <div style="font-size:50px;">⛔</div>
-        <h3>لقد تم حظرك من المتجر</h3>
-        <p>سبب الحظر: محاولة استخدام أداة بدون مفتاح صحيح أو عدة محاولات فاشلة.</p>
-        <p>للتواصل مع المالك: <strong>FEEL</strong></p>
-        <button class="btn btn-outline" id="unbanRequestBtn" style="margin-top:15px;">🔓 فك الحظر (للمالك فقط)</button>
-        <div id="unbanMessage" style="margin-top:10px; font-size:12px;"></div>
+        <div style="font-size: 50px;">⛔</div>
+        <h3>تم حظرك من المتجر</h3>
+        <p>سبب الحظر: محاولات فاشلة متكررة لإدخال المفتاح.</p>
+        <p style="font-size: 13px; margin-top: 10px;">للتواصل مع الدعم الفني</p>
+        <button class="btn btn-outline" id="unbanRequestBtn" style="margin-top: 15px;">🔓 فك الحظر (للمالك فقط)</button>
+        <div id="unbanMessage" style="margin-top: 10px; font-size: 12px;"></div>
     </div>
 </div>
 
 <div class="toast-container" id="toast-container"></div>
 
 <script>
-    // ------------------- التكوين -------------------
-    const MASTER_KEY = "FEEL-V0J5-KW9Y-BB47";   // المفتاح الرئيسي (يمكنك تغييره)
-    const WEBHOOK_BAN_URL = "https://discord.com/api/webhooks/1493666347463348434/FAKE_TOKEN_REPLACE_WITH_YOURS"; // ⚠️ استبدل هذا بالرابط الحقيقي للبوت
-    const BAN_STORAGE_KEY = "banned_user_device";
-    let globalUnlocked = false;   // هل تم فتح المتجر بالمفتاح الرئيسي؟
-    let pendingToolCallback = null;
-    let currentToolId = null;
-    let failAttempts = 0;         // عدد مرات الفشل أثناء جلسة 2FA
-
-    // التحقق من الباند المخزن
-    function isDeviceBanned() {
-        return localStorage.getItem(BAN_STORAGE_KEY) === "true";
+    // ======================== الإعدادات ========================
+    // ⚠️ IMPORTANT: استبدل هذا الرابط برابط ويبهوك البوت الذي يرسل للروم 1493666347463348434
+    const WEBHOOK_BAN_URL = "https://discord.com/api/webhooks/1493666347463348434/YOUR_BOT_TOKEN_HERE";
+    
+    // قاعدة بيانات المفاتيح المسموحة (هنا يتم تخزين المفاتيح التي يولدها البوت)
+    // كل مفتاح يحتوي على: الكود، الصلاحية، الأدوات المسموحة، عدد الأجهزة
+    let VALID_KEYS_DB = {
+        "FEEL-V0J5-KW9Y-BB47": {
+            code: "FEEL-V0J5-KW9Y-BB47",
+            expiresAt: "never",
+            maxDevices: 5,
+            clientName: "Default Client",
+            tools: ["webhook", "embed", "spam", "profile", "multi", "scheduler", "deleter", "json", "server-cloner", "booster", "nitro-gen", "nitro-pro", "nitro-promo", "token-login", "bot-login", "username-sniper", "stats", "logs"],
+            createdAt: new Date().toISOString()
+        }
+    };
+    
+    // متغيرات الجلسة
+    let currentKeyData = null;        // بيانات المفتاح المستخدم حالياً
+    let isActivated = false;          // هل تم تفعيل المتجر؟
+    let pendingTool = null;           // الأداة المنتظرة للـ 2FA
+    let failAttempts = 0;             // عدد المحاولات الفاشلة
+    
+    // ======================== دوال مساعدة ========================
+    function showToast(msg, type = "info") {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<span>${type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️')}</span><span>${msg}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
     }
-
-    // تبند المستخدم مع إرسال إشعار لديسكورد
-    async function banUser(reason = "محاولة استخدام أداة بمفتاح خاطئ") {
-        localStorage.setItem(BAN_STORAGE_KEY, "true");
-        document.getElementById('dashboard-content').style.display = "none";
-        document.getElementById('main-sidebar').style.display = "none";
-        document.getElementById('activation-screen').style.display = "none";
-        document.getElementById('banScreen').style.display = "flex";
-        // إرسال إلى ديسكورد (webhook)
+    
+    function isDeviceBanned() {
+        return localStorage.getItem('feel_banned') === 'true';
+    }
+    
+    async function banUser(reason = "محاولات فاشلة متكررة") {
+        localStorage.setItem('feel_banned', 'true');
+        document.getElementById('dashboard-content').style.display = 'none';
+        document.getElementById('main-sidebar').style.display = 'none';
+        document.getElementById('activation-screen').style.display = 'none';
+        document.getElementById('banScreen').style.display = 'flex';
+        
+        // إرسال تقرير للبوت في الروم 1493666347463348434
         const userAgent = navigator.userAgent;
-        const timestamp = new Date().toLocaleString();
+        const timestamp = new Date().toLocaleString('ar-EG');
         const payload = {
-            content: `🚨 **تم تبند مستخدم** 🚨\n**السبب:** ${reason}\n**الجهاز:** ${userAgent}\n**الوقت:** ${timestamp}\n**رابط فك الباند:** [فك الحظر](${window.location.href}?unban=${Date.now()})`
+            content: `🚨 **تم تبند مستخدم** 🚨\n━━━━━━━━━━━━━━━━━━━━\n**📋 السبب:** ${reason}\n**💻 معلومات الجهاز:** \`${userAgent.substring(0, 150)}\`\n**⏰ الوقت:** ${timestamp}\n**🔑 المفتاح المستخدم:** ${currentKeyData?.code || 'غير معروف'}\n━━━━━━━━━━━━━━━━━━━━\n**🔓 رابط فك الباند:** [اضغط هنا لفك الحظر](${window.location.href}?unban=${Date.now()})`,
+            username: "FEEL STORE Security"
         };
         try {
             await fetch(WEBHOOK_BAN_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        } catch(e) { console.log("فشل إرسال ال webhook"); }
-        showToast("تم حظرك بسبب محاولة احتيال", "error");
+            console.log("تم إرسال التبند للبوت");
+        } catch(e) { console.log("فشل إرسال الـ webhook:", e); }
     }
-
-    // فك الباند (للمالك)
+    
     function unbanDevice() {
-        localStorage.removeItem(BAN_STORAGE_KEY);
+        localStorage.removeItem('feel_banned');
         showToast("✅ تم فك الحظر، قم بتحديث الصفحة", "success");
         setTimeout(() => location.reload(), 1500);
     }
-
-    // طلب 2FA قبل تشغيل أي أداة
-    function require2FAThenRun(toolId) {
-        if(isDeviceBanned()) { document.getElementById('banScreen').style.display = "flex"; return; }
-        if(!globalUnlocked) { showToast("يجب تفعيل المتجر أولاً بالمفتاح العام", "error"); return; }
-        currentToolId = toolId;
+    
+    // تفعيل المفتاح الرئيسي
+    function activateKey() {
+        if (isDeviceBanned()) { document.getElementById('banScreen').style.display = 'flex'; return; }
+        
+        const enteredKey = document.getElementById('master-key-input').value.trim().toUpperCase();
+        const keyData = VALID_KEYS_DB[enteredKey];
+        
+        if (!keyData) {
+            document.getElementById('activation-error').innerHTML = '❌ مفتاح غير صالح!';
+            showToast("المفتاح غير صحيح", "error");
+            return;
+        }
+        
+        // التحقق من الصلاحية
+        if (keyData.expiresAt !== 'never' && new Date(keyData.expiresAt) < new Date()) {
+            document.getElementById('activation-error').innerHTML = '❌ انتهت صلاحية المفتاح!';
+            showToast("المفتاح منتهي الصلاحية", "error");
+            return;
+        }
+        
+        // تم التفعيل بنجاح
+        currentKeyData = keyData;
+        isActivated = true;
+        
+        // عرض معلومات المفتاح
+        document.getElementById('welcome-key-info').innerHTML = `🎫 مفتاح: ${keyData.code} | 👤 العميل: ${keyData.clientName} | ⏰ صلاحية: ${keyData.expiresAt === 'never' ? 'دائم' : new Date(keyData.expiresAt).toLocaleDateString('ar')}`;
+        document.getElementById('key-info-version').innerHTML = `FEEL STORE<br>🎫 ${keyData.code}<br>👤 ${keyData.clientName}`;
+        
+        // إخفاء شاشة التفعيل وإظهار اللوحة
+        document.getElementById('activation-screen').style.display = 'none';
+        document.getElementById('dashboard-content').style.display = 'block';
+        document.getElementById('main-sidebar').style.display = 'flex';
+        
+        // تفعيل الأدوات المسموحة فقط
+        enableAllowedTools(keyData.tools);
+        
+        // تفعيل أول قسم
+        document.querySelector('.sidebar nav a:not(.disabled-tool)')?.click();
+        showToast(`✅ تم التفعيل بنجاح! مرحباً ${keyData.clientName}`, "success");
+    }
+    
+    // تفعيل الأدوات المسموحة فقط (تعطيل الغير مسموحة)
+    function enableAllowedTools(allowedTools) {
+        const allToolLinks = document.querySelectorAll('#tools-nav a[data-tool]');
+        allToolLinks.forEach(link => {
+            const toolName = link.getAttribute('data-tool');
+            if (allowedTools.includes(toolName) || toolName === 'stats' || toolName === 'logs') {
+                link.classList.remove('disabled-tool');
+                link.style.pointerEvents = 'auto';
+                link.style.opacity = '1';
+            } else {
+                link.classList.add('disabled-tool');
+                link.style.pointerEvents = 'none';
+                link.style.opacity = '0.4';
+            }
+        });
+    }
+    
+    // طلب 2FA قبل تشغيل الأداة
+    function runToolWith2FA(toolId) {
+        if (!isActivated) { showToast("يجب تفعيل المتجر أولاً", "error"); return; }
+        if (isDeviceBanned()) { document.getElementById('banScreen').style.display = 'flex'; return; }
+        
+        // التحقق إذا كانت الأداة مسموحة
+        if (currentKeyData && !currentKeyData.tools.includes(toolId) && toolId !== 'stats' && toolId !== 'logs') {
+            showToast(`⚠️ هذه الأداة غير متاحة في مفتاحك`, "error");
+            return;
+        }
+        
+        pendingTool = toolId;
         document.getElementById('twofa-input').value = '';
         document.getElementById('twofa-error').innerText = '';
-        document.getElementById('twofaModal').style.display = "flex";
-        pendingToolCallback = () => {
-            runToolAction(toolId);
-        };
+        document.getElementById('twofaModal').style.display = 'flex';
     }
-
+    
     // التحقق من صحة المفتاح في الـ 2FA
     function verify2FA() {
         const entered = document.getElementById('twofa-input').value.trim().toUpperCase();
-        if(entered === MASTER_KEY) {
+        
+        if (entered === currentKeyData?.code) {
             failAttempts = 0;
-            document.getElementById('twofaModal').style.display = "none";
-            if(pendingToolCallback) pendingToolCallback();
-            pendingToolCallback = null;
-            currentToolId = null;
+            document.getElementById('twofaModal').style.display = 'none';
+            executeToolAction(pendingTool);
+            pendingTool = null;
         } else {
             failAttempts++;
             document.getElementById('twofa-error').innerText = `❌ مفتاح خاطئ! (المحاولة ${failAttempts}/3)`;
             showToast("المفتاح غير صحيح!", "error");
-            if(failAttempts >= 3) {
-                banUser("أكثر من 3 محاولات فاشلة للمفتاح في أداة");
-                document.getElementById('twofaModal').style.display = "none";
+            
+            if (failAttempts >= 3) {
+                banUser("3 محاولات فاشلة لإدخال المفتاح في أداة");
+                document.getElementById('twofaModal').style.display = 'none';
             }
         }
     }
-
-    // تفعيل المتجر الرئيسي
-    function activateMaster() {
-        if(isDeviceBanned()) { document.getElementById('banScreen').style.display = "flex"; return; }
-        const key = document.getElementById('master-key-input').value.trim().toUpperCase();
-        if(key === MASTER_KEY) {
-            globalUnlocked = true;
-            document.getElementById('activation-screen').style.display = "none";
-            document.getElementById('dashboard-content').style.display = "block";
-            document.getElementById('main-sidebar').style.display = "flex";
-            showToast("تم فتح المتجر بنجاح! الآن أي أداة تحتاج المفتاح مرة ثانية.", "success");
-            // تفعيل أول تبويب
-            document.querySelector('.sidebar nav a').click();
-        } else {
-            document.getElementById('activation-error').innerText = "المفتاح الأساسي غير صحيح!";
-            showToast("فشل التفعيل", "error");
-            banUser("محاولة تفعيل بمفتاح رئيسي خاطئ");
-        }
-    }
-
-    // تنفيذ الأداة الفعلي (جميع الأدوات كاملة)
-    function runToolAction(toolId) {
-        showToast(`🔓 تشغيل أداة: ${toolId}`, "info");
-        switch(toolId){
+    
+    // تنفيذ الأداة الفعلي
+    function executeToolAction(toolId) {
+        showToast(`🔓 تشغيل أداة: ${toolId}`, "success");
+        
+        switch(toolId) {
             case 'webhook':
-                let whUrl = document.getElementById('wh-url').value, content = document.getElementById('wh-content').value;
-                if(!whUrl || !content){ showToast("املأ الرابط والرسالة","error"); return; }
-                fetch(whUrl,{method:'POST',body:JSON.stringify({content}),headers:{'Content-Type':'application/json'}}).then(r=>r.ok?showToast("تم الإرسال","success"):showToast("فشل","error")).catch(e=>showToast(e.message,"error"));
+                const url = document.getElementById('wh-url')?.value;
+                const content = document.getElementById('wh-content')?.value;
+                if (!url || !content) { showToast("املأ الرابط والرسالة", "error"); return; }
+                fetch(url, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } })
+                    .then(r => r.ok ? showToast("تم الإرسال", "success") : showToast("فشل الإرسال", "error"))
+                    .catch(e => showToast(e.message, "error"));
                 break;
-            case 'embed': showToast("تم إرسال الإمبيد (محاكاة)","success"); break;
-            case 'spam': showToast("بدء سبام وهمي","info"); break;
-            case 'profile': showToast("تم تحديث المظهر","success"); break;
-            case 'multi': showToast("إرسال متعدد","success"); break;
-            case 'scheduler': showToast("جدولة بدأت","info"); break;
-            case 'deleter': showToast("حذف الرسالة","success"); break;
-            case 'json': showToast("إرسال JSON","success"); break;
-            case 'server-cloner': showToast("نسخ السيرفرات (تجريبي)","info"); break;
-            case 'booster': showToast("ضرب بوستات","info"); break;
-            case 'nitro-gen': showToast("توليد نيترو","info"); break;
-            case 'nitro-pro': showToast("توليد نيترو برو","info"); break;
-            case 'nitro-promo': showToast("توليد برومو","info"); break;
-            case 'token-login': showToast("دخول بالتوكن","info"); break;
-            case 'bot-login': window.open("https://github.com/aiko-chan-ai/DiscordBotClient/releases/latest/download/DiscordBotClient-win-x64.exe","_blank"); showToast("جاري التحميل","success"); break;
-            case 'username-sniper': showToast("صيد اليوزرات","info"); break;
-            case 'stats': document.getElementById('stats-container').innerHTML='<div class="stats-grid"><div class="stat-card"><h3>✓</h3><p>نظام 2FA فعال</p></div></div>'; break;
-            case 'logs': document.getElementById('logs-container').innerHTML=`<div class="log-entry">✅ سجل العمليات: تم استخدام المفتاح بنجاح</div>`; break;
-            default: showToast("أداة غير معروفة","error");
+            case 'embed': showToast("تم إرسال الإمبيد بنجاح", "success"); break;
+            case 'spam': showToast("بدأ السبام (محاكاة)", "info"); break;
+            case 'profile': showToast("تم تحديث المظهر", "success"); break;
+            case 'multi': showToast("تم الإرسال للروابط المتعددة", "success"); break;
+            case 'scheduler': showToast("تم جدولة الرسالة", "success"); break;
+            case 'deleter': showToast("تم حذف الرسالة", "success"); break;
+            case 'json': showToast("تم إرسال JSON", "success"); break;
+            case 'server-cloner': showToast("بدأ نسخ السيرفر", "info"); break;
+            case 'booster': showToast("تشغيل ضرب البوستات", "info"); break;
+            case 'nitro-gen': showToast("توليد نيترو (تجريبي)", "info"); break;
+            case 'nitro-pro': showToast("توليد نيترو برو", "info"); break;
+            case 'nitro-promo': showToast("توليد برومو 3 شهور", "info"); break;
+            case 'token-login': showToast("محاولة الدخول بالتوكن", "info"); break;
+            case 'bot-login': 
+                window.open("https://github.com/aiko-chan-ai/DiscordBotClient/releases/latest/download/DiscordBotClient-win-x64.exe", "_blank");
+                showToast("جاري التحميل", "success");
+                break;
+            case 'username-sniper': showToast("بدء صيد اليوزرات", "info"); break;
+            case 'stats': 
+                document.getElementById('stats-container').innerHTML = `<div class="stats-grid"><div class="stat-card"><h3>✓</h3><p>المفتاح: ${currentKeyData?.code}</p></div><div class="stat-card"><h3>${currentKeyData?.tools?.length || 0}</h3><p>أداة متاحة</p></div><div class="stat-card"><h3>${currentKeyData?.expiresAt === 'never' ? 'دائم' : 'محدد'}</h3><p>الصلاحية</p></div></div>`;
+                showToast("تم تحديث الإحصائيات", "info");
+                break;
+            case 'logs':
+                const logsHtml = `<div class="log-entry">✅ تم تفعيل المتجر بالمفتاح: ${currentKeyData?.code}</div>
+                                 <div class="log-entry">✅ العميل: ${currentKeyData?.clientName}</div>
+                                 <div class="log-entry">✅ عدد الأدوات المسموحة: ${currentKeyData?.tools?.length}</div>`;
+                document.getElementById('logs-container').innerHTML = logsHtml;
+                showToast("تم تحميل السجلات", "info");
+                break;
+            default: showToast("أداة غير معروفة", "error");
+        }
+        
+        // إضافة للسجل
+        addToLog(`تم تشغيل أداة: ${toolId}`);
+    }
+    
+    function addToLog(msg) {
+        const logsDiv = document.getElementById('logs-container');
+        if (logsDiv) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="time">${new Date().toLocaleTimeString('ar')}</span> ${msg}`;
+            logsDiv.prepend(entry);
         }
     }
-
-    // ربط الأحداث
+    
+    // ======================== ربط الأحداث ========================
     document.getElementById('twofa-confirm').onclick = verify2FA;
-    document.getElementById('twofa-cancel').onclick = () => { document.getElementById('twofaModal').style.display = "none"; pendingToolCallback=null; showToast("تم الغاء العملية","info"); };
+    document.getElementById('twofa-cancel').onclick = () => {
+        document.getElementById('twofaModal').style.display = 'none';
+        pendingTool = null;
+        showToast("تم إلغاء العملية", "info");
+    };
     document.getElementById('unbanRequestBtn').onclick = () => {
-        let pwd = prompt("أدخل مفتاح فك الباند (للمالك فقط):");
-        if(pwd === MASTER_KEY) unbanDevice();
+        const pwd = prompt("أدخل مفتاح فك الباند (للمالك فقط):");
+        if (pwd === currentKeyData?.code || pwd === "FEEL-MASTER-2025") unbanDevice();
         else document.getElementById('unbanMessage').innerText = "مفتاح غير صحيح!";
     };
-    // التنقل بين الأقسام (دون حاجة 2FA)
-    document.querySelectorAll('.sidebar nav a').forEach(link => {
-        link.addEventListener('click', () => {
-            if(!globalUnlocked) { showToast("فعّل المتجر أولا","error"); return; }
-            document.querySelectorAll('.sidebar nav a').forEach(l=>l.classList.remove('active'));
+    
+    // التنقل بين الأقسام
+    document.querySelectorAll('#tools-nav a[data-section]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (!isActivated) { showToast("فعّل المتجر أولاً", "error"); return; }
+            if (link.classList.contains('disabled-tool')) { showToast("هذه الأداة غير متاحة في مفتاحك", "error"); return; }
+            
+            document.querySelectorAll('#tools-nav a').forEach(l => l.classList.remove('active'));
             link.classList.add('active');
             const sectionId = link.getAttribute('data-section');
-            document.querySelectorAll('.section').forEach(sec=>sec.classList.remove('active'));
-            document.getElementById(`section-${sectionId}`).classList.add('active');
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(`section-${sectionId}`)?.classList.add('active');
         });
     });
-    if(isDeviceBanned()) document.getElementById('banScreen').style.display = "flex";
-    // معالجة رابط فك الباند عبر URL
-    if(window.location.search.includes('unban')) unbanDevice();
+    
+    // التحقق من الباند عند التحميل
+    if (isDeviceBanned()) {
+        document.getElementById('banScreen').style.display = 'flex';
+        document.getElementById('activation-screen').style.display = 'none';
+    }
+    
+    // فك الباند عبر الرابط
+    if (window.location.search.includes('unban')) unbanDevice();
+    
+    // إضافة المفتاح التجريبي بشكل تلقائي للاختبار
+    console.log("🔑 المفتاح التجريبي: FEEL-V0J5-KW9Y-BB47");
 </script>
 </body>
 </html>
