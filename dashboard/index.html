@@ -220,17 +220,7 @@
 <script>
     // ======================== الإعدادات ========================
     const BAN_WEBHOOK = "https://discord.com/api/webhooks/1504049316149461044/fHRXFvj-bdgs3ax6f9BO8NGLheoGxGr_yt2D7dLxf0NlNxPY4rFtNc0l09kI7F1oL9lm";
-    
-    let VALID_KEYS_DB = {
-        "FEEL-V0J5-KW9Y-BB47": {
-            code: "FEEL-V0J5-KW9Y-BB47",
-            expiresAt: "never",
-            maxDevices: 5,
-            clientName: "عميل مميز",
-            tools: ["webhook","embed","spam","profile","multi","scheduler","deleter","json","server-cloner","booster","nitro-gen","nitro-pro","nitro-promo","token-login","bot-login","username-sniper","stats","logs"],
-            createdAt: new Date().toISOString()
-        }
-    };
+
     
     let currentKeyData = null;
     let isActivated = false;
@@ -280,88 +270,84 @@
         }
     }
     
-    // ======================== التفعيل ========================
-    function activateKey() {
-        if (isDeviceBanned()) {
-            document.getElementById('banScreen').classList.add('show');
-            return;
-        }
-        
-        const enteredKey = document.getElementById('master-key-input').value.trim().toUpperCase();
-        const keyData = VALID_KEYS_DB[enteredKey];
-        
-        if (!keyData) {
-            document.getElementById('activation-error').innerHTML = '❌ مفتاح غير صالح!';
-            increaseFailAttempts("مفتاح تفعيل خاطئ في الشاشة الرئيسية");
-            return;
-        }
-        
-        if (keyData.expiresAt !== 'never' && new Date(keyData.expiresAt) < new Date()) {
-            document.getElementById('activation-error').innerHTML = '❌ انتهت صلاحية المفتاح!';
-            return;
-        }
-        
-        // نجاح التفعيل
-        currentKeyData = keyData;
-        isActivated = true;
-        failAttempts = 0;
-        
-        document.getElementById('welcome-name').textContent = keyData.clientName;
-        document.getElementById('welcome-key-info').innerHTML = `🎫 ${keyData.code} | ⏰ ${keyData.expiresAt === 'never' ? 'دائم' : new Date(keyData.expiresAt).toLocaleDateString('ar')} | 🛠️ ${keyData.tools.length} أداة`;
-        document.getElementById('key-info-version').innerHTML = `FEEL STORE<br>🎫 ${keyData.code}`;
-        
-        document.getElementById('activation-screen').style.display = 'none';
-        document.getElementById('dashboard-content').style.display = 'block';
-        document.getElementById('main-sidebar').classList.add('show');
-        
-        enableAllowedTools(keyData.tools);
-        showToast(`✅ مرحباً ${keyData.clientName}!`, "success");
+async function activateKey() {
+    if (isDeviceBanned()) {
+        document.getElementById('banScreen').classList.add('show');
+        return;
     }
     
-    function enableAllowedTools(allowedTools) {
-        document.querySelectorAll('#tools-nav a[data-tool]').forEach(link => {
-            const tool = link.getAttribute('data-tool');
-            if (allowedTools.includes(tool) || tool === 'stats' || tool === 'logs') {
-                link.classList.remove('disabled-tool');
-                link.style.opacity = '1';
-                link.style.pointerEvents = 'auto';
-            } else {
-                link.classList.add('disabled-tool');
-                link.style.opacity = '0.4';
-                link.style.pointerEvents = 'none';
-            }
+    const enteredKey = document.getElementById('master-key-input').value.trim().toUpperCase();
+    
+    if (!enteredKey) {
+        document.getElementById('activation-error').innerHTML = '❌ أدخل المفتاح!';
+        return;
+    }
+    
+    document.getElementById('activation-error').innerHTML = '⏳ جاري التحقق...';
+    
+    try {
+        const hwid = await generateHWID();
+        
+        const res = await fetch('/api/activate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: enteredKey, hwid })
         });
-    }
-    
-    // ======================== 2FA قبل أي أداة ========================
-    function runTool(toolId) {
-        if (!isActivated) { showToast("فعّل المتجر أولاً", "error"); return; }
-        if (isDeviceBanned()) { document.getElementById('banScreen').classList.add('show'); return; }
         
-        if (currentKeyData && !currentKeyData.tools.includes(toolId) && toolId !== 'stats' && toolId !== 'logs') {
-            showToast("⚠️ هذه الأداة غير متاحة في مفتاحك", "error");
-            return;
-        }
+        const data = await res.json();
         
-        pendingTool = toolId;
-        document.getElementById('twofa-input').value = '';
-        document.getElementById('twofa-error').innerText = '';
-        document.getElementById('twofaModal').classList.add('show');
-        setTimeout(() => document.getElementById('twofa-input').focus(), 300);
-    }
-    
-    function verify2FA() {
-        const entered = document.getElementById('twofa-input').value.trim().toUpperCase();
-        
-        if (entered === currentKeyData?.code) {
+        if (data.success) {
+            currentKeyData = data.key;
+            isActivated = true;
             failAttempts = 0;
-            document.getElementById('twofaModal').classList.remove('show');
-            executeTool(pendingTool);
-            pendingTool = null;
+            
+            document.getElementById('welcome-name').textContent = data.key.clientName || 'مستخدم';
+            document.getElementById('welcome-key-info').innerHTML = `🎫 ${data.key.code} | ⏰ ${data.key.expiresAt === 'never' ? 'دائم' : new Date(data.key.expiresAt).toLocaleDateString('ar')} | 🛠️ ${(data.key.tools || []).length} أداة`;
+            document.getElementById('key-info-version').innerHTML = `FEEL STORE<br>🎫 ${data.key.code}`;
+            
+            document.getElementById('activation-screen').style.display = 'none';
+            document.getElementById('dashboard-content').style.display = 'block';
+            document.getElementById('main-sidebar').classList.add('show');
+            
+            enableAllowedTools(data.key.tools || []);
+            showToast(`✅ مرحباً ${data.key.clientName || 'بك'}!`, "success");
+            
+            localStorage.setItem('feel_key', enteredKey);
         } else {
-            increaseFailAttempts(`محاولة 2FA فاشلة لأداة: ${pendingTool}`);
+            document.getElementById('activation-error').innerHTML = `❌ ${data.error || 'مفتاح غير صالح!'}`;
+            increaseFailAttempts("مفتاح تفعيل خاطئ في الشاشة الرئيسية");
         }
+    } catch(e) {
+        document.getElementById('activation-error').innerHTML = '❌ خطأ في الاتصال بالسيرفر';
+        console.error(e);
     }
+}
+
+async function generateHWID() {
+    const components = [
+        navigator.userAgent,
+        navigator.language,
+        screen.colorDepth,
+        new Date().getTimezoneOffset(),
+        navigator.hardwareConcurrency || 1
+    ].join('|');
+    const enc = new TextEncoder().encode(components);
+    const hash = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+    
+function verify2FA() {
+    const entered = document.getElementById('twofa-input').value.trim().toUpperCase();
+    
+    if (entered === currentKeyData?.code) {
+        failAttempts = 0;
+        document.getElementById('twofaModal').classList.remove('show');
+        executeTool(pendingTool);
+        pendingTool = null;
+    } else {
+        increaseFailAttempts(`محاولة 2FA فاشلة لأداة: ${pendingTool}`);
+    }
+}
     
     function executeTool(toolId) {
         addLog(`🔓 تم تشغيل: ${toolId}`);
