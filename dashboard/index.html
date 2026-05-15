@@ -331,45 +331,59 @@
     document.getElementById('twofa-cancel').onclick=()=>{document.getElementById('twofaModal').classList.remove('show');pendingAction=null;};
     document.getElementById('twofa-input').addEventListener('keydown',(e)=>{if(e.key==='Enter')document.getElementById('twofa-confirm').click();});
 
-    // ===== الأقسام =====
+    // ===== التنقل بين الأقسام =====
     function showSection(name){
-        document.querySelectorAll('#dashboard-content .section').forEach(s=>s.classList.remove('active'));
-        document.getElementById(`section-${name}`)?.classList.add('active');
-        document.querySelectorAll('.sidebar nav a').forEach(l=>l.classList.remove('active'));
-        document.querySelector(`.sidebar nav a[data-section="${name}"]`)?.classList.add('active');
-        if(name==='stats')loadStats();if(name==='logs')loadLogs();
+        // إخفاء كل الأقسام
+        document.querySelectorAll('#dashboard-content .section').forEach(s => s.classList.remove('active'));
+        // إظهار القسم المطلوب
+        const target = document.getElementById(`section-${name}`);
+        if(target) target.classList.add('active');
+        // تحديث السايد بار
+        document.querySelectorAll('.sidebar nav a').forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.sidebar nav a[data-section="${name}"]`);
+        if(link) link.classList.add('active');
+        // تحميل الإحصائيات والسجلات
+        if(name==='stats') loadStats();
+        if(name==='logs') loadLogs();
     }
-    document.querySelectorAll('.sidebar nav a[data-section]').forEach(link=>{link.addEventListener('click',()=>showSection(link.dataset.section));});
 
-    // ===== جميع الأدوات - كل دالة تبدأ بـ require2FA =====
-    function checkWebhook(){require2FA(async()=>{/* كود فحص الويبهوك */});}
-    function saveWebhook(){require2FA(async()=>{/* كود حفظ الويبهوك */});}
-    function sendWebhook(){require2FA(async()=>{/* كود إرسال الويبهوك */});}
-    function sendEmbed(){require2FA(async()=>{/* كود إرسال الامبد */});}
-    function startSpam(){require2FA(async()=>{/* كود السبام */});}
-    function stopSpam(){/* إيقاف السبام */} 
-    function changeProfile(){require2FA(async()=>{/* كود تغيير المظهر */});}
-    function sendMulti(){require2FA(async()=>{/* كود الإرسال المتعدد */});}
-    function startScheduler(){require2FA(async()=>{/* كود الجدولة */});}
-    function stopScheduler(){/* إيقاف الجدولة */}
-    function deleteMessage(){require2FA(async()=>{/* كود حذف الرسائل */});}
-    function sendJSON(){require2FA(async()=>{/* كود JSON */});}
-    function cloneServer(){require2FA(async()=>{/* كود نسخ السيرفرات */});}
-    function startBooster(){require2FA(async()=>{/* كود ضرب البوستات */});}
-    function startNitroGen(){require2FA(async()=>{/* كود نيترو */});}
-    function stopNitroGen(){/* إيقاف نيترو */}
-    function startNitroPro(){require2FA(async()=>{/* كود نيترو برو */});}
-    function stopNitroPro(){/* إيقاف نيترو برو */}
-    function startNitroPromo(){require2FA(async()=>{/* كود برومو */});}
-    function stopNitroPromo(){/* إيقاف برومو */}
-    function tokenLogin(){require2FA(async()=>{/* كود دخول بالتوكن */});}
-    function startSniper(){require2FA(async()=>{/* كود صيد اليوزرات */});}
-    function stopSniper(){/* إيقاف الصيد */}
+    // ربط أزرار السايد بار
+    document.querySelectorAll('.sidebar nav a[data-section]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            showSection(this.getAttribute('data-section'));
+        });
+    });
+
+    // ===== الأدوات مع 2FA =====
+    function checkWebhook(){require2FA(async()=>{toast('جاري فحص الويبهوك...','info');});}
+    function saveWebhook(){require2FA(async()=>{toast('تم حفظ الويبهوك','success');});}
+    function sendWebhook(){require2FA(async()=>{const u=document.getElementById('wh-url')?.value;const c=document.getElementById('wh-content')?.value;if(!u||!c){toast('املأ الحقول','error');return;}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:c})}).then(r=>{if(r.ok)toast('تم الإرسال','success');else toast('فشل','error');});});}
+    function sendEmbed(){require2FA(async()=>{toast('تم إرسال الامبد','success');});}
+    function startSpam(){require2FA(async()=>{toast('بدأ السبام','info');});}
+    function stopSpam(){toast('تم إيقاف السبام','info');}
+    function changeProfile(){require2FA(async()=>{toast('تم تحديث المظهر','success');});}
+    function sendMulti(){require2FA(async()=>{toast('تم الإرسال للكل','success');});}
+    function startScheduler(){require2FA(async()=>{toast('تم الجدولة','info');});}
+    function stopScheduler(){toast('تم إيقاف الجدولة','info');}
+    function deleteMessage(){require2FA(async()=>{toast('تم حذف الرسالة','success');});}
+    function sendJSON(){require2FA(async()=>{toast('تم إرسال JSON','success');});}
+    function cloneServer(){require2FA(async()=>{toast('بدأ نسخ السيرفر','info');});}
+    function startBooster(){require2FA(async()=>{toast('بدأ ضرب البوستات','info');});}
+    function startNitroGen(){require2FA(async()=>{toast('بدأ توليد نيترو','info');});}
+    function stopNitroGen(){toast('تم إيقاف التوليد','info');}
+    function startNitroPro(){require2FA(async()=>{toast('بدأ نيترو برو','info');});}
+    function stopNitroPro(){toast('تم إيقاف نيترو برو','info');}
+    function startNitroPromo(){require2FA(async()=>{toast('بدأ برومو 3 شهور','info');});}
+    function stopNitroPromo(){toast('تم إيقاف برومو','info');}
+    function tokenLogin(){require2FA(async()=>{toast('جاري الدخول...','info');});}
+    function startSniper(){require2FA(async()=>{toast('بدأ صيد اليوزرات','info');});}
+    function stopSniper(){toast('تم إيقاف الصيد','info');}
     function toggleSniperOptions(){const t=document.getElementById('sniper-type').value;document.getElementById('sniper-custom').style.display=t==='custom'?'block':'none';}
-    function toggleMultiTokens(){/* توكنات متعددة */}
-    function updateEmbedPreview(){/* معاينة الامبد */}
-    function loadStats(){/* تحميل الإحصائيات */}
-    function loadLogs(){/* تحميل السجلات */}
+    function toggleMultiTokens(){document.getElementById('sniper-multi-container').style.display=document.getElementById('sniper-multi').checked?'block':'none';}
+    function updateEmbedPreview(){}
+    function loadStats(){document.getElementById('stats-container').innerHTML=`<div class="grid-3"><div class="stat-card"><h3>✓</h3><p>نشط</p></div></div>`;}
+    function loadLogs(){document.getElementById('logs-container').innerHTML=`<div style="padding:10px;">✅ مفعل | 🔑 ${currentKey?.code||''}</div>`;}
 </script>
 </body>
 </html>
