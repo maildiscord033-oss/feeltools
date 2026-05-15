@@ -7,13 +7,14 @@ module.exports = {
         
         const unbanLink = `${process.env.BASE_URL || 'https://feel.up.railway.app/'}?unban=${key.toUpperCase()}`;
         
-        const { MessageEmbed } = require("discord.js");
-        const embed = new MessageEmbed()
+        const { EmbedBuilder } = require("discord.js");
+
+        const embed = new EmbedBuilder()
             .setTitle('🔓 رابط فك الحظر')
             .setColor('#00ff00')
             .setDescription(`رابط فك الحظر للعميل:\n${unbanLink}\n\nعلى العميل فتح هذا الرابط لفك الحظر عن جهازه.`)
-            .setFooter('FEEL STORE');
-        
+            .setFooter({ text: 'FEEL STORE' });
+
         await message.reply({ embeds: [embed] });
     }
 };
