@@ -532,7 +532,7 @@
     }
 
     // ======================== تنفيذ الأدوات ========================
-    function executeTool(toolId) {
+    async function executeTool(toolId) {
         addLog(`🔓 تم تشغيل: ${toolId}`);
         showToast(`✅ ${toolId}`, "success");
         const consoleId = `console-${toolId}`;
