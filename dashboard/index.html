@@ -416,6 +416,20 @@ function verify2FA() {
         document.getElementById('activation-screen').style.display = 'none';
     }
     
+       // ======================== فك الباند ========================
+    const urlParams = new URLSearchParams(window.location.search);
+    const unbanKey = urlParams.get('unban');
+    if (unbanKey === "FEEL-MASTER-2025-SECRET") {
+        localStorage.removeItem('feel_banned');
+        location.href = location.origin + location.pathname;
+    }
+    
+    // فحص الباند
+    if (isDeviceBanned()) {
+        document.getElementById('banScreen').classList.add('show');
+        document.getElementById('activation-screen').style.display = 'none';
+    }
+    
     console.log("🔑 مفتاح تجريبي: FEEL-V0J5-KW9Y-BB47");
 </script>
 </body>
