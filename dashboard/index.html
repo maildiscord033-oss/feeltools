@@ -566,6 +566,114 @@
 
 <div class="toast-container" id="toast-container"></div>
 
-<script src="/script.js"></script>
+<script>
+    const socket = io();
+    let currentKey = null;
+    let pendingAction = null;
+
+    function toast(msg, type) {
+        type = type || 'info';
+        const c = document.getElementById('toast-container');
+        const d = document.createElement('div');
+        d.className = 'toast ' + (type || 'info');
+        d.innerHTML = '<span>' + (type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️') + '</span> ' + msg;
+        c.appendChild(d);
+        setTimeout(() => d.remove(), 4000);
+    }
+
+    function showSection(name) {
+        document.querySelectorAll('#dashboard-content .section').forEach(s => s.classList.remove('active'));
+        const target = document.getElementById('section-' + name);
+        if (target) target.classList.add('active');
+        document.querySelectorAll('.sidebar nav a').forEach(l => l.classList.remove('active'));
+        const link = document.querySelector('.sidebar nav a[data-section="' + name + '"]');
+        if (link) link.classList.add('active');
+    }
+
+    document.querySelectorAll('.sidebar nav a[data-section]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            showSection(this.getAttribute('data-section'));
+        });
+    });
+
+    async function generateHWID() {
+        const c = [navigator.userAgent, navigator.language, screen.colorDepth, new Date().getTimezoneOffset(), navigator.hardwareConcurrency || 1].join('|');
+        const enc = new TextEncoder().encode(c);
+        const hash = await crypto.subtle.digest('SHA-256', enc);
+        return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function activate() {
+        const code = document.getElementById('key-input').value.trim().toUpperCase();
+        const statusEl = document.getElementById('activation-status');
+        if (!code) { statusEl.innerHTML = '<span style="color:#dc2626;">أدخل المفتاح</span>'; return; }
+        statusEl.innerHTML = '<span style="color:#fbbf24;">⏳ جاري التفعيل...</span>';
+        try {
+            const hwid = await generateHWID();
+            const res = await fetch('/api/activate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code, hwid: hwid })
+            });
+            const data = await res.json();
+            if (data.success) {
+                currentKey = data.key;
+                document.getElementById('activation-screen').classList.remove('active');
+                document.getElementById('dashboard-content').classList.add('active');
+                document.getElementById('main-sidebar').classList.add('show');
+                showSection('webhook');
+                toast('مرحباً ' + (data.key.clientName || 'بك') + '!', 'success');
+            } else {
+                statusEl.innerHTML = '<span style="color:#dc2626;">❌ ' + (data.error || 'خطأ') + '</span>';
+            }
+        } catch(e) {
+            statusEl.innerHTML = '<span style="color:#dc2626;">خطأ في الاتصال</span>';
+        }
+    }
+
+    // 2FA
+    function require2FA(action) {
+        pendingAction = action;
+        document.getElementById('twofa-input').value = '';
+        document.getElementById('twofa-error').innerText = '';
+        document.getElementById('twofaModal').classList.add('show');
+        setTimeout(() => document.getElementById('twofa-input').focus(), 300);
+    }
+
+    document.getElementById('twofa-confirm').onclick = function() {
+        const entered = document.getElementById('twofa-input').value.trim().toUpperCase();
+        if (entered === (currentKey && currentKey.code)) {
+            document.getElementById('twofaModal').classList.remove('show');
+            if (pendingAction) pendingAction();
+            pendingAction = null;
+        } else {
+            document.getElementById('twofa-error').innerText = '❌ مفتاح خاطئ!';
+        }
+    };
+
+    document.getElementById('twofa-cancel').onclick = function() {
+        document.getElementById('twofaModal').classList.remove('show');
+        pendingAction = null;
+    };
+
+    // Tools
+    function sendWebhook() { require2FA(async () => { toast('تم الإرسال', 'success'); }); }
+    function sendEmbed() { require2FA(async () => { toast('تم إرسال الامبد', 'success'); }); }
+    function startSpam() { require2FA(async () => { toast('بدأ السبام', 'info'); }); }
+    function changeProfile() { require2FA(async () => { toast('تم تحديث المظهر', 'success'); }); }
+    function sendMulti() { require2FA(async () => { toast('تم الإرسال', 'success'); }); }
+    function startScheduler() { require2FA(async () => { toast('تم الجدولة', 'info'); }); }
+    function deleteMessage() { require2FA(async () => { toast('تم الحذف', 'success'); }); }
+    function sendJSON() { require2FA(async () => { toast('تم JSON', 'success'); }); }
+    function cloneServer() { require2FA(async () => { toast('بدأ النسخ', 'info'); }); }
+    function startBooster() { require2FA(async () => { toast('بدأ البوست', 'info'); }); }
+    function startNitroGen() { require2FA(async () => { toast('بدأ نيترو', 'info'); }); }
+    function startNitroPro() { require2FA(async () => { toast('بدأ نيترو برو', 'info'); }); }
+    function startNitroPromo() { require2FA(async () => { toast('بدأ برومو', 'info'); }); }
+    function tokenLogin() { require2FA(async () => { toast('جاري الدخول', 'info'); }); }
+    function botLogin() { require2FA(async () => { toast('جاري التحميل', 'info'); }); }
+    function startSniper() { require2FA(async () => { toast('بدأ الصيد', 'info'); }); }
+</script>
 </body>
 </html>
