@@ -1,65 +1,57 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-theme="dark">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FEEL STORE - لوحة التحكم</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEEL STORE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <style>
-        :root {
-            --bg: #010102; --bg2: #313040; --bg3: #51526D; --accent: #6F6E9E;
-            --text: #E1E1E1; --text2: #B0B0B2; --border: #51526D;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', 'Tahoma', sans-serif; display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background: var(--bg2); border-left: 1px solid var(--border); padding: 20px; position: fixed; height: 100vh; right: 0; top: 0; display: none; flex-direction: column; z-index: 100; overflow-y: auto; }
-        .sidebar.show { display: flex; }
-        .sidebar .logo { font-size: 26px; font-weight: bold; text-align: center; margin-bottom: 30px; background: linear-gradient(135deg, #6F6E9E, #E1E1E1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .sidebar .category { color: #6F6E9E; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 15px 12px 5px; font-weight: bold; }
-        .sidebar nav { display: flex; flex-direction: column; gap: 3px; flex: 1; }
-        .sidebar nav a { color: var(--text2); text-decoration: none; padding: 10px 12px; border-radius: 8px; transition: all 0.3s; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; }
-        .sidebar nav a:hover, .sidebar nav a.active { background: rgba(111,110,158,0.2); color: var(--text); }
-        .sidebar .version { text-align: center; color: var(--text2); font-size: 11px; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border); }
-        .main { margin-right: 0; flex: 1; padding: 30px; min-height: 100vh; }
-        .sidebar.show ~ .main { margin-right: 260px; }
-        .section { display: none; animation: fadeIn 0.4s; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 20px; }
-        .card h2 { font-size: 22px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--text); }
-        input, textarea, select { background: #010102; border: 1px solid var(--border); color: var(--text); padding: 12px 16px; border-radius: 10px; width: 100%; font-size: 14px; transition: all 0.3s; font-family: inherit; }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(111,110,158,0.15); }
-        textarea { resize: vertical; min-height: 80px; }
-        label { display: block; margin-bottom: 6px; color: var(--text2); font-size: 13px; font-weight: 500; }
-        .btn { background: var(--accent); color: #fff; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-        .btn:hover { background: #5c5d8a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(111,110,158,0.3); }
-        .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
-        .btn-outline:hover { background: var(--accent); color: #fff; }
-        .btn-danger { background: #dc2626; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .form-group { margin-bottom: 16px; }
-        .toast-container { position: fixed; top: 20px; left: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; min-width: 300px; animation: slideIn 0.3s; display: flex; align-items: center; gap: 10px; }
-        .toast.success { border-right: 4px solid #16a34a; }
-        .toast.error { border-right: 4px solid #dc2626; }
-        .badge { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-block; }
-        .badge-success { background: rgba(22,163,74,0.2); color: #16a34a; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; }
-        .modal.show { display: flex; }
-        .modal-card { background: var(--bg2); border: 2px solid var(--accent); border-radius: 24px; padding: 30px; width: 90%; max-width: 420px; text-align: center; }
-        .modal-card h3 { margin-bottom: 20px; color: var(--accent); }
-        .modal-card input { text-align: center; letter-spacing: 2px; margin: 10px 0; }
-        .console-box { background: #000; border: 1px solid #51526D; border-radius: 10px; padding: 10px; margin-top: 15px; max-height: 250px; overflow-y: auto; font-family: monospace; font-size: 11px; color: #B0B0B2; }
-        .activation-card { background: var(--bg2); border: 2px solid var(--border); border-radius: 24px; padding: 50px 40px; max-width: 480px; width: 100%; text-align: center; }
-        .activation-card .icon { font-size: 60px; margin-bottom: 20px; }
-        .activation-card h1 { font-size: 28px; margin-bottom: 10px; }
-        .activation-card input { text-align: center; font-size: 20px; letter-spacing: 3px; text-transform: uppercase; padding: 14px; background: #010102; border: 2px solid var(--border); width: 100%; }
-        @media (max-width: 768px) { .sidebar { width: 100%; height: auto; position: relative; } .sidebar.show ~ .main { margin-right: 0; } .grid-2 { grid-template-columns: 1fr; } }
+        :root{--bg:#010102;--bg2:#1a1a2e;--accent:#6F6E9E;--text:#E1E1E1;--text2:#B0B0B2;--border:#51526D}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Tahoma,sans-serif;display:flex;min-height:100vh}
+        .sidebar{width:260px;background:var(--bg2);border-left:1px solid var(--border);padding:20px;position:fixed;height:100vh;right:0;top:0;display:none;flex-direction:column;z-index:100;overflow-y:auto}
+        .sidebar.show{display:flex}
+        .sidebar .logo{font-size:26px;font-weight:bold;text-align:center;margin-bottom:30px;background:linear-gradient(135deg,var(--accent),var(--text));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .sidebar .category{color:var(--accent);font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:15px 12px 5px;font-weight:bold}
+        .sidebar nav{display:flex;flex-direction:column;gap:3px;flex:1}
+        .sidebar nav a{color:var(--text2);text-decoration:none;padding:10px 12px;border-radius:8px;transition:all 0.3s;display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px}
+        .sidebar nav a:hover,.sidebar nav a.active{background:rgba(111,110,158,0.2);color:var(--text)}
+        .main{margin-right:0;flex:1;padding:30px;min-height:100vh}
+        .section{display:none}
+        .section.active{display:block}
+        .card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px}
+        .card h2{font-size:22px;margin-bottom:20px;display:flex;align-items:center;gap:10px;color:var(--text)}
+        input,textarea,select{background:#010102;border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:10px;width:100%;font-size:14px;margin-bottom:12px;font-family:inherit}
+        input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+        textarea{resize:vertical;min-height:80px}
+        label{display:block;margin-bottom:6px;color:var(--text2);font-size:13px}
+        .btn{background:var(--accent);color:#fff;border:none;padding:12px 24px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s}
+        .btn:hover{background:#5c5d8a}
+        .btn-danger{background:#dc2626}
+        .btn-outline{background:transparent;border:1px solid var(--accent);color:var(--accent)}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:2000;justify-content:center;align-items:center}
+        .modal.show{display:flex}
+        .modal-card{background:var(--bg2);border:2px solid var(--accent);border-radius:24px;padding:30px;width:90%;max-width:420px;text-align:center}
+        .modal-card h3{margin-bottom:20px;color:var(--accent)}
+        .modal-card input{text-align:center;letter-spacing:2px;margin:10px 0}
+        .console-box{background:#000;border:1px solid #51526D;border-radius:10px;padding:10px;margin-top:15px;max-height:250px;overflow-y:auto;font-family:monospace;font-size:11px;color:#B0B0B2}
+        .activation-container{display:flex;align-items:center;justify-content:center;min-height:80vh}
+        .activation-card{background:var(--bg2);border:2px solid var(--accent);border-radius:24px;padding:50px 40px;max-width:480px;width:100%;text-align:center}
+        .activation-card .icon{font-size:60px;margin-bottom:20px}
+        .activation-card h1{font-size:28px;margin-bottom:10px}
+        .activation-card input{text-align:center;font-size:20px;letter-spacing:3px;text-transform:uppercase;padding:14px}
+        .toast-container{position:fixed;top:20px;left:20px;z-index:9999}
+        .toast{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 20px;margin-bottom:10px;animation:slideIn 0.3s}
+        .toast.success{border-right:4px solid#16a34a}
+        .toast.error{border-right:4px solid#dc2626}
+        @keyframes slideIn{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
+        @media(max-width:768px){.sidebar{width:100%;height:auto;position:relative}.grid-2{grid-template-columns:1fr}}
     </style>
 </head>
 <body>
-<canvas id="particles" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;"></canvas>
+
+<canvas id="particles" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1"></canvas>
 
 <aside class="sidebar" id="main-sidebar">
     <div class="logo">FEEL STORE</div>
@@ -71,114 +63,116 @@
         <div class="category">📊 النظام</div>
         <a data-section="stats">📊 إحصائيات</a><a data-section="logs">📋 سجلات</a>
     </nav>
-    <div class="version">FEEL STORE v2.0</div>
 </aside>
 
 <main class="main">
-    <div id="activation-screen" class="section active" style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
-        <div class="activation-card">
-            <div class="icon">🔐</div><h1>تفعيل المتجر</h1><p style="color:var(--text2);margin-bottom:25px;">أدخل مفتاح الترخيص</p>
-            <input type="text" id="key-input" placeholder="FEEL-XXXX-XXXX-XXXX">
-            <div style="margin:15px 0;"><input type="checkbox" id="remember-me"> <label for="remember-me" style="color:var(--text2);">تذكرني</label></div>
-            <button class="btn" onclick="activate()" style="width:100%;justify-content:center;">🔓 تفعيل</button>
-            <div id="activation-status" style="margin-top:15px;font-size:14px;"></div>
+    <!-- شاشة التفعيل -->
+    <div id="activation-screen" class="section active">
+        <div class="activation-container">
+            <div class="activation-card">
+                <div class="icon">🔐</div><h1>FEEL STORE</h1><p style="color:var(--text2);margin-bottom:25px;">أدخل مفتاح الترخيص</p>
+                <input type="text" id="key-input" placeholder="FEEL-XXXX-XXXX-XXXX">
+                <div style="margin:15px 0"><input type="checkbox" id="remember-me"> <label style="color:var(--text2)">تذكرني</label></div>
+                <button class="btn" onclick="activate()" style="width:100%">🔓 تفعيل</button>
+                <div id="activation-status" style="margin-top:15px;font-size:14px"></div>
+            </div>
         </div>
     </div>
 
+    <!-- لوحة التحكم -->
     <div id="dashboard-content" class="section">
-        <div class="card" style="background:linear-gradient(135deg, #313040, #010102);"><h2>👋 مرحباً</h2></div>
-        <div id="section-webhook" class="section"><div class="card"><h2>📨 مرسل الويبهوك</h2><input id="wh-url" placeholder="رابط الويبهوك"><textarea id="wh-content" placeholder="الرسالة"></textarea><button class="btn" onclick="sendWebhook()">إرسال</button></div></div>
+        <div class="card" style="background:linear-gradient(135deg,var(--bg2),#010102)"><h2>👋 مرحباً بك في <span style="color:var(--accent)">FEEL STORE</span></h2></div>
+
+        <div id="section-webhook" class="section"><div class="card"><h2>📨 مرسل الويبهوك</h2><input id="wh-url" placeholder="رابط الويبهوك"><textarea id="wh-content" placeholder="الرسالة"></textarea><button class="btn" onclick="sendWebhook()">🚀 إرسال</button></div></div>
         <div id="section-embed" class="section"><div class="card"><h2>🎨 منشئ الامبد</h2><input id="emb-url" placeholder="رابط"><input id="emb-title" placeholder="عنوان"><textarea id="emb-desc"></textarea><input type="color" id="emb-color" value="#6F6E9E"><button class="btn" onclick="sendEmbed()">إرسال</button></div></div>
-        <div id="section-spam" class="section"><div class="card"><h2>💣 سبام</h2><input id="spam-url"><textarea id="spam-msg"></textarea><button class="btn" onclick="startSpam()">بدء</button></div></div>
-        <div id="section-profile" class="section"><div class="card"><h2>👤 تغيير المظهر</h2><input id="prof-url"><input id="prof-name" placeholder="اسم"><input id="prof-avatar" placeholder="صورة"><button class="btn" onclick="changeProfile()">تحديث</button></div></div>
-        <div id="section-multi" class="section"><div class="card"><h2>📡 متعدد</h2><textarea id="multi-urls" rows="3"></textarea><textarea id="multi-msg"></textarea><button class="btn" onclick="sendMulti()">إرسال</button></div></div>
-        <div id="section-scheduler" class="section"><div class="card"><h2>⏰ جدولة</h2><input id="sched-url"><textarea id="sched-msg"></textarea><button class="btn" onclick="startScheduler()">بدء</button></div></div>
-        <div id="section-deleter" class="section"><div class="card"><h2>🗑️ حذف</h2><input id="del-url"><input id="del-msgid" placeholder="ID"><button class="btn btn-danger" onclick="deleteMessage()">حذف</button></div></div>
-        <div id="section-json" class="section"><div class="card"><h2>📝 JSON</h2><input id="json-url"><textarea id="json-payload" rows="4"></textarea><button class="btn" onclick="sendJSON()">إرسال</button></div></div>
-        <div id="section-server-cloner" class="section"><div class="card"><h2>📋 نسخ السيرفرات</h2><input type="password" id="cloner-token" placeholder="توكن"><input id="cloner-source" placeholder="مصدر"><input id="cloner-target" placeholder="هدف"><button class="btn" onclick="cloneServer()">بدء</button></div></div>
+        <div id="section-spam" class="section"><div class="card"><h2>💣 سبام</h2><input id="spam-url" placeholder="رابط"><textarea id="spam-msg" placeholder="رسالة"></textarea><div class="grid-2"><input type="number" id="spam-amount" value="10"><input type="number" id="spam-delay" value="500"></div><button class="btn" onclick="startSpam()">بدء</button></div></div>
+        <div id="section-profile" class="section"><div class="card"><h2>👤 تغيير المظهر</h2><input id="prof-url" placeholder="رابط"><div class="grid-2"><input id="prof-name" placeholder="اسم"><input id="prof-avatar" placeholder="صورة"></div><button class="btn" onclick="changeProfile()">تحديث</button></div></div>
+        <div id="section-multi" class="section"><div class="card"><h2>📡 متعدد</h2><textarea id="multi-urls" rows="3" placeholder="كل رابط في سطر"></textarea><textarea id="multi-msg" placeholder="رسالة"></textarea><button class="btn" onclick="sendMulti()">إرسال</button></div></div>
+        <div id="section-scheduler" class="section"><div class="card"><h2>⏰ جدولة</h2><input id="sched-url" placeholder="رابط"><textarea id="sched-msg" placeholder="رسالة"></textarea><button class="btn" onclick="startScheduler()">بدء</button></div></div>
+        <div id="section-deleter" class="section"><div class="card"><h2>🗑️ حذف</h2><input id="del-url" placeholder="رابط"><input id="del-msgid" placeholder="ID"><button class="btn btn-danger" onclick="deleteMessage()">حذف</button></div></div>
+        <div id="section-json" class="section"><div class="card"><h2>📝 JSON</h2><input id="json-url" placeholder="رابط"><textarea id="json-payload" rows="4" placeholder='{"content":"مرحباً"}'></textarea><button class="btn" onclick="sendJSON()">إرسال</button></div></div>
+        <div id="section-server-cloner" class="section"><div class="card"><h2>📋 نسخ السيرفرات</h2><input type="password" id="cloner-token" placeholder="توكن"><div class="grid-2"><input id="cloner-source" placeholder="مصدر"><input id="cloner-target" placeholder="هدف"></div><button class="btn" onclick="cloneServer()">بدء</button></div></div>
         <div id="section-booster" class="section"><div class="card"><h2>🚀 ضرب بوستات</h2><textarea id="boost-tokens" rows="3" placeholder="توكنات"></textarea><input id="boost-invite" placeholder="رابط"><button class="btn" onclick="startBooster()">بدء</button></div></div>
-        
+
         <!-- نيترو -->
-        <div id="section-nitro-gen" class="section"><div class="card"><h2>🎁 توليد نيترو</h2><input id="nitrogen-webhook" placeholder="ويبهوك"><div class="grid-2"><input type="number" id="nitrogen-count" value="100"><input type="number" id="nitrogen-threads" value="5"></div><button class="btn" onclick="startNitroGen()">بدء</button><div class="console-box" id="console-nitro-gen"><div style="color:#6F6E9E;">📟 Console</div></div></div></div>
-        <div id="section-nitro-pro" class="section"><div class="card"><h2>💎 نيترو برو</h2><input id="nitropro-webhook" placeholder="ويبهوك"><div class="grid-2"><input type="number" id="nitropro-count" value="500"><input type="number" id="nitropro-threads" value="10"></div><button class="btn" onclick="startNitroPro()">بدء</button><div class="console-box" id="console-nitro-pro"><div style="color:#6F6E9E;">📟 Console</div></div></div></div>
-        <div id="section-nitro-promo" class="section"><div class="card"><h2>👑 برومو 3 شهور</h2><input id="nitropromo-webhook" placeholder="ويبهوك"><div class="grid-2"><input type="number" id="nitropromo-count" value="300"><input type="number" id="nitropromo-threads" value="8"></div><button class="btn" onclick="startNitroPromo()">بدء</button><div class="console-box" id="console-nitro-promo"><div style="color:#6F6E9E;">📟 Console</div></div></div></div>
-        
-        <!-- دخول توكن -->
+        <div id="section-nitro-gen" class="section"><div class="card"><h2>🎁 توليد نيترو</h2><input id="nitrogen-webhook" placeholder="ويبهوك"><div class="grid-2"><input type="number" id="nitrogen-count" value="100"><input type="number" id="nitrogen-threads" value="5"></div><button class="btn" onclick="startNitroGen()">بدء</button><div class="console-box" id="console-nitro-gen" style="display:none"><div style="color:var(--accent)">📟 Console</div></div></div></div>
+        <div id="section-nitro-pro" class="section"><div class="card"><h2>💎 نيترو برو</h2><input id="nitropro-webhook" placeholder="ويبهوك"><div class="grid-2"><input type="number" id="nitropro-count" value="500"><input type="number" id="nitropro-threads" value="10"></div><button class="btn" onclick="startNitroPro()">بدء</button><div class="console-box" id="console-nitro-pro" style="display:none"><div style="color:var(--accent)">📟 Console</div></div></div></div>
+        <div id="section-nitro-promo" class="section"><div class="card"><h2>👑 برومو 3 شهور</h2><input id="nitropromo-webhook" placeholder="ويبهوك"><div class="grid-2"><input type="number" id="nitropromo-count" value="300"><input type="number" id="nitropromo-threads" value="8"></div><button class="btn" onclick="startNitroPromo()">بدء</button><div class="console-box" id="console-nitro-promo" style="display:none"><div style="color:var(--accent)">📟 Console</div></div></div></div>
+
         <div id="section-token-login" class="section"><div class="card"><h2>🔐 دخول بالتوكن</h2><input type="password" id="tokenlogin-input" placeholder="توكن"><button class="btn" onclick="tokenLogin()">دخول</button></div></div>
-        <!-- دخول بوت -->
-        <div id="section-bot-login" class="section"><div class="card"><h2>🤖 دخول بوت</h2><button class="btn" onclick="botLogin()">⬇️ تحميل</button></div></div>
+        <div id="section-bot-login" class="section"><div class="card"><h2>🤖 دخول بوت</h2><button class="btn" onclick="botLogin()">⬇️ تحميل البرنامج</button></div></div>
+
         <!-- صيد يوزرات -->
-        <div id="section-username-sniper" class="section"><div class="card"><h2>🎯 صيد اليوزرات</h2><input type="password" id="sniper-token" placeholder="توكن"><select id="sniper-type"><option value="semi-3">شبه ثلاثي</option><option value="semi-4">شبه رباعي</option></select><input type="number" id="sniper-count" value="100"><button class="btn" onclick="startSniper()">بدء</button><div class="console-box" id="console-sniper"><div style="color:#6F6E9E;">📟 Console</div></div></div></div>
+        <div id="section-username-sniper" class="section"><div class="card"><h2>🎯 صيد اليوزرات</h2><input type="password" id="sniper-token" placeholder="توكن"><select id="sniper-type"><option value="semi-3">شبه ثلاثي</option><option value="semi-4">شبه رباعي</option></select><input type="number" id="sniper-count" value="100"><button class="btn" onclick="startSniper()">بدء</button><div class="console-box" id="console-sniper" style="display:none"><div style="color:var(--accent)">📟 Console</div></div></div></div>
+
         <div id="section-stats" class="section"><div class="card"><h2>📊 إحصائيات</h2><div id="stats-container"></div></div></div>
-        <div id="section-logs" class="section"><div class="card"><h2>📋 سجلات</h2><div id="logs-container" style="max-height:400px;overflow-y:auto;"></div></div></div>
+        <div id="section-logs" class="section"><div class="card"><h2>📋 سجلات</h2><div id="logs-container" style="max-height:400px;overflow-y:auto"></div></div></div>
     </div>
 </main>
 
-<div class="modal" id="twofaModal"><div class="modal-card"><h3>🔐 تحقق أمني</h3><p style="color:var(--text2);margin-bottom:15px;">أدخل مفتاح التفعيل لتشغيل الأداة</p><input type="text" id="twofa-input" placeholder="FEEL-XXXX-XXXX-XXXX" style="text-align:center;letter-spacing:3px;font-size:16px;text-transform:uppercase;"><div style="display:flex;gap:10px;margin-top:20px;justify-content:center;"><button class="btn" id="twofa-confirm">✅ تأكيد</button><button class="btn btn-outline" id="twofa-cancel">إلغاء</button></div><div id="twofa-error" style="color:#f87171;margin-top:10px;font-size:13px;"></div></div></div>
+<!-- Modal 2FA -->
+<div class="modal" id="twofaModal"><div class="modal-card"><h3>🔐 تحقق أمني</h3><p style="color:var(--text2);margin-bottom:15px">أدخل مفتاح التفعيل لتشغيل الأداة</p><input type="text" id="twofa-input" placeholder="FEEL-XXXX-XXXX-XXXX" style="text-align:center;letter-spacing:3px;font-size:16px;text-transform:uppercase"><div style="display:flex;gap:10px;margin-top:20px;justify-content:center"><button class="btn" id="twofa-confirm">✅ تأكيد</button><button class="btn btn-outline" id="twofa-cancel">إلغاء</button></div><div id="twofa-error" style="color:#f87171;margin-top:10px;font-size:13px"></div></div></div>
 <div class="toast-container" id="toast-container"></div>
 
 <script>
-    const socket = io();
-    let currentKey = null, pendingAction = null;
+    const socket=io();
+    let currentKey=null,pendingAction=null;
 
-    // Particles
-    const canvas=document.getElementById('particles'),ctx=canvas.getContext('2d');canvas.width=window.innerWidth;canvas.height=window.innerHeight;
-    const particles=Array.from({length:60},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*2+1,speedX:(Math.random()-0.5)*1.2,speedY:(Math.random()-0.5)*1.2,opacity:Math.random()*0.4+0.1}));
-    function animateParticles(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach((p,i)=>{p.x+=p.speedX;p.y+=p.speedY;if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;ctx.fillStyle=`rgba(111,110,158,${p.opacity})`;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();for(let j=i+1;j<particles.length;j++){const dx=p.x-particles[j].x,dy=p.y-particles[j].y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<100){ctx.strokeStyle=`rgba(111,110,158,${0.06*(1-dist/100)})`;ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(particles[j].x,particles[j].y);ctx.stroke();}}});requestAnimationFrame(animateParticles);}
-    animateParticles();
-
-    function toast(msg,type='info'){const c=document.getElementById('toast-container'),d=document.createElement('div');d.className=`toast ${type}`;d.innerHTML=`<span>${type==='success'?'✅':type==='error'?'❌':'ℹ️'}</span> ${msg}`;c.appendChild(d);setTimeout(()=>d.remove(),4000);}
-    function logToConsole(id,msg,color='#B0B0B2'){const el=document.getElementById(id);if(!el)return;const line=document.createElement('div');line.style.color=color;line.textContent=`[${new Date().toLocaleTimeString('ar')}] ${msg}`;el.appendChild(line);el.scrollTop=el.scrollHeight;}
+    function toast(msg,type='info'){const c=document.getElementById('toast-container'),d=document.createElement('div');d.className=`toast ${type}`;d.innerHTML=`<span>${type==='success'?'✅':type==='error'?'❌':'ℹ️'}</span> ${msg}`;c.appendChild(d);setTimeout(()=>d.remove(),4000)}
+    function logToConsole(id,msg,color='#B0B0B2'){const el=document.getElementById(id);if(!el)return;const line=document.createElement('div');line.style.color=color;line.textContent=`[${new Date().toLocaleTimeString('ar')}] ${msg}`;el.appendChild(line);el.scrollTop=el.scrollHeight}
 
     // Activation
-    async function generateHWID(){const c=[navigator.userAgent,navigator.language,screen.colorDepth,new Date().getTimezoneOffset(),navigator.hardwareConcurrency||1].join('|');const enc=new TextEncoder().encode(c);const hash=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');}
+    async function generateHWID(){const c=[navigator.userAgent,navigator.language,screen.colorDepth,new Date().getTimezoneOffset(),navigator.hardwareConcurrency||1].join('|');const enc=new TextEncoder().encode(c);const hash=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('')}
     async function activate(){
         const code=document.getElementById('key-input').value.trim().toUpperCase(),statusEl=document.getElementById('activation-status');
-        if(!code){statusEl.innerHTML='<span style="color:#dc2626;">أدخل المفتاح</span>';return;}
-        statusEl.innerHTML='<span style="color:#fbbf24;">⏳ جاري التفعيل...</span>';
+        if(!code){statusEl.innerHTML='<span style="color:#dc2626">أدخل المفتاح</span>';return}
+        statusEl.innerHTML='<span style="color:#fbbf24">⏳ جاري التفعيل...</span>';
         try{const hwid=await generateHWID(),res=await fetch('/api/activate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,hwid})}),data=await res.json();
-        if(data.success){currentKey=data.key;if(document.getElementById('remember-me').checked){localStorage.setItem('feel_key',code);localStorage.setItem('feel_hwid',hwid);}document.getElementById('activation-screen').classList.remove('active');document.getElementById('dashboard-content').classList.add('active');document.getElementById('main-sidebar').classList.add('show');document.getElementById('section-webhook').classList.add('active');toast(`مرحباً ${data.key.clientName||'بك'}!`,'success');}
-        else{statusEl.innerHTML=`<span style="color:#dc2626;">❌ ${data.error}</span>`;}}catch(e){statusEl.innerHTML='<span style="color:#dc2626;">خطأ في الاتصال</span>';}
+        if(data.success){currentKey=data.key;if(document.getElementById('remember-me').checked){localStorage.setItem('feel_key',code)}document.getElementById('activation-screen').classList.remove('active');document.getElementById('dashboard-content').classList.add('active');document.getElementById('main-sidebar').classList.add('show');showSection('webhook');toast(`مرحباً ${data.key.clientName||'بك'}!`,'success')}
+        else{statusEl.innerHTML=`<span style="color:#dc2626">❌ ${data.error}</span>`}}catch(e){statusEl.innerHTML='<span style="color:#dc2626">خطأ في الاتصال</span>'}
     }
-    window.addEventListener('load',async()=>{const savedKey=localStorage.getItem('feel_key');if(savedKey){document.getElementById('key-input').value=savedKey;document.getElementById('remember-me').checked=true;await activate();}});
+    window.addEventListener('load',async()=>{const k=localStorage.getItem('feel_key');if(k){document.getElementById('key-input').value=k;await activate()}});
 
     // 2FA
-    function require2FA(action){pendingAction=action;document.getElementById('twofa-input').value='';document.getElementById('twofa-error').innerText='';document.getElementById('twofaModal').classList.add('show');setTimeout(()=>document.getElementById('twofa-input').focus(),300);}
-    document.getElementById('twofa-confirm').onclick=()=>{const e=document.getElementById('twofa-input').value.trim().toUpperCase();if(e===currentKey?.code){document.getElementById('twofaModal').classList.remove('show');if(pendingAction)pendingAction();pendingAction=null;}else{document.getElementById('twofa-error').innerText='❌ مفتاح خاطئ!';}};
-    document.getElementById('twofa-cancel').onclick=()=>{document.getElementById('twofaModal').classList.remove('show');pendingAction=null;};
+    function require2FA(action){pendingAction=action;document.getElementById('twofa-input').value='';document.getElementById('twofa-error').innerText='';document.getElementById('twofaModal').classList.add('show');setTimeout(()=>document.getElementById('twofa-input').focus(),300)}
+    document.getElementById('twofa-confirm').onclick=()=>{const e=document.getElementById('twofa-input').value.trim().toUpperCase();if(e===currentKey?.code){document.getElementById('twofaModal').classList.remove('show');if(pendingAction)pendingAction();pendingAction=null}else{document.getElementById('twofa-error').innerText='❌ مفتاح خاطئ!'}}
+    document.getElementById('twofa-cancel').onclick=()=>{document.getElementById('twofaModal').classList.remove('show');pendingAction=null}
 
     // Navigation
-    function showSection(n){document.querySelectorAll('#dashboard-content .section').forEach(s=>s.classList.remove('active'));const t=document.getElementById(`section-${n}`);if(t)t.classList.add('active');document.querySelectorAll('.sidebar nav a').forEach(l=>l.classList.remove('active'));const l=document.querySelector(`.sidebar nav a[data-section="${n}"]`);if(l)l.classList.add('active');}
-    document.querySelectorAll('.sidebar nav a[data-section]').forEach(l=>l.addEventListener('click',e=>{e.preventDefault();showSection(l.dataset.section);}));
+    function showSection(n){
+        document.querySelectorAll('#dashboard-content .section').forEach(s=>s.classList.remove('active'));
+        const t=document.getElementById(`section-${n}`);if(t)t.classList.add('active');
+        document.querySelectorAll('.sidebar nav a').forEach(l=>l.classList.remove('active'));
+        const l=document.querySelector(`.sidebar nav a[data-section="${n}"]`);if(l)l.classList.add('active')
+    }
+    document.querySelectorAll('.sidebar nav a[data-section]').forEach(l=>l.addEventListener('click',e=>{e.preventDefault();showSection(l.dataset.section)}));
 
     // Tools
-    function sendWebhook(){require2FA(async()=>{const u=document.getElementById('wh-url')?.value,c=document.getElementById('wh-content')?.value;if(!u||!c){toast('املأ الحقول','error');return;}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:c})}).then(r=>toast(r.ok?'تم الإرسال':'فشل',r.ok?'success':'error'));});}
-    function sendEmbed(){require2FA(async()=>{toast('تم إرسال الامبد','success');});}
-    function startSpam(){require2FA(async()=>{toast('بدأ السبام','info');});}
-    function changeProfile(){require2FA(async()=>{toast('تم تحديث المظهر','success');});}
-    function sendMulti(){require2FA(async()=>{toast('تم الإرسال','success');});}
-    function startScheduler(){require2FA(async()=>{toast('تم الجدولة','info');});}
-    function deleteMessage(){require2FA(async()=>{toast('تم الحذف','success');});}
-    function sendJSON(){require2FA(async()=>{toast('تم إرسال JSON','success');});}
-    function cloneServer(){require2FA(async()=>{toast('بدأ نسخ السيرفر','info');});}
-    function startBooster(){require2FA(async()=>{toast('بدأ ضرب البوستات','info');});}
+    function sendWebhook(){require2FA(async()=>{const u=document.getElementById('wh-url')?.value,c=document.getElementById('wh-content')?.value;if(!u||!c){toast('املأ الحقول','error');return}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:c})}).then(r=>toast(r.ok?'تم':'فشل',r.ok?'success':'error'))})}
+    function sendEmbed(){require2FA(async()=>{toast('تم إرسال الامبد','success')})}
+    function startSpam(){require2FA(async()=>{toast('بدأ السبام','info')})}
+    function changeProfile(){require2FA(async()=>{toast('تم تحديث المظهر','success')})}
+    function sendMulti(){require2FA(async()=>{toast('تم الإرسال','success')})}
+    function startScheduler(){require2FA(async()=>{toast('تم الجدولة','info')})}
+    function deleteMessage(){require2FA(async()=>{toast('تم الحذف','success')})}
+    function sendJSON(){require2FA(async()=>{toast('تم JSON','success')})}
+    function cloneServer(){require2FA(async()=>{toast('بدأ النسخ','info')})}
+    function startBooster(){require2FA(async()=>{toast('بدأ البوست','info')})}
 
-    // Nitro Gen with Console
-    function startNitroGen(){require2FA(async()=>{const wh=document.getElementById('nitrogen-webhook')?.value,n=parseInt(document.getElementById('nitrogen-count')?.value)||10;document.getElementById('console-nitro-gen').style.display='block';logToConsole('console-nitro-gen','🚀 بدء توليد نيترو...','#6F6E9E');for(let i=0;i<n;i++){const code='GIFT'+Math.random().toString(36).substring(2,10).toUpperCase(),url=`https://discord.gift/${code}`;logToConsole('console-nitro-gen',`🎁 ${url}`,'#6F6E9E');if(wh)await fetch('/api/webhook/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({webhook:wh,content:`🎁 ${url}`})});await new Promise(r=>setTimeout(r,200));}logToConsole('console-nitro-gen','✅ اكتمل','#16a34a');});}
-    function startNitroPro(){require2FA(async()=>{const wh=document.getElementById('nitropro-webhook')?.value,n=parseInt(document.getElementById('nitropro-count')?.value)||10;document.getElementById('console-nitro-pro').style.display='block';logToConsole('console-nitro-pro','🚀 نيترو برو...','#6F6E9E');for(let i=0;i<n;i++){const code='PRO'+Math.random().toString(36).substring(2,10).toUpperCase(),url=`https://discord.gift/${code}`;logToConsole('console-nitro-pro',`💎 ${url}`,'#6F6E9E');if(wh)await fetch('/api/webhook/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({webhook:wh,content:`💎 ${url}`})});await new Promise(r=>setTimeout(r,150));}logToConsole('console-nitro-pro','✅ اكتمل','#16a34a');});}
-    function startNitroPromo(){require2FA(async()=>{const wh=document.getElementById('nitropromo-webhook')?.value,n=parseInt(document.getElementById('nitropromo-count')?.value)||10;document.getElementById('console-nitro-promo').style.display='block';logToConsole('console-nitro-promo','🚀 برومو...','#6F6E9E');for(let i=0;i<n;i++){const code='PROMO'+Math.random().toString(36).substring(2,10).toUpperCase(),url=`https://discord.gift/${code}`;logToConsole('console-nitro-promo',`👑 ${url}`,'#6F6E9E');if(wh)await fetch('/api/webhook/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({webhook:wh,content:`👑 ${url}`})});await new Promise(r=>setTimeout(r,150));}logToConsole('console-nitro-promo','✅ اكتمل','#16a34a');});}
+    // Nitro with Console
+    function startNitroGen(){require2FA(async()=>{const wh=document.getElementById('nitrogen-webhook')?.value,n=parseInt(document.getElementById('nitrogen-count')?.value)||10;document.getElementById('console-nitro-gen').style.display='block';logToConsole('console-nitro-gen','🚀 بدء التوليد...','var(--accent)');for(let i=0;i<n;i++){const code='N'+Math.random().toString(36).substring(2,10).toUpperCase(),url=`https://discord.gift/${code}`;logToConsole('console-nitro-gen',url,'#6F6E9E');if(wh)await fetch('/api/webhook/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({webhook:wh,content:`🎁 ${url}`})});await new Promise(r=>setTimeout(r,200))}logToConsole('console-nitro-gen','✅ اكتمل','#16a34a')})}
+    function startNitroPro(){require2FA(async()=>{const wh=document.getElementById('nitropro-webhook')?.value,n=parseInt(document.getElementById('nitropro-count')?.value)||10;document.getElementById('console-nitro-pro').style.display='block';logToConsole('console-nitro-pro','🚀 نيترو برو...','var(--accent)');for(let i=0;i<n;i++){const code='P'+Math.random().toString(36).substring(2,10).toUpperCase(),url=`https://discord.gift/${code}`;logToConsole('console-nitro-pro',url,'#6F6E9E');if(wh)await fetch('/api/webhook/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({webhook:wh,content:`💎 ${url}`})});await new Promise(r=>setTimeout(r,150))}logToConsole('console-nitro-pro','✅ اكتمل','#16a34a')})}
+    function startNitroPromo(){require2FA(async()=>{const wh=document.getElementById('nitropromo-webhook')?.value,n=parseInt(document.getElementById('nitropromo-count')?.value)||10;document.getElementById('console-nitro-promo').style.display='block';logToConsole('console-nitro-promo','🚀 برومو...','var(--accent)');for(let i=0;i<n;i++){const code='M'+Math.random().toString(36).substring(2,10).toUpperCase(),url=`https://discord.gift/${code}`;logToConsole('console-nitro-promo',url,'#6F6E9E');if(wh)await fetch('/api/webhook/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({webhook:wh,content:`👑 ${url}`})});await new Promise(r=>setTimeout(r,150))}logToConsole('console-nitro-promo','✅ اكتمل','#16a34a')})}
 
-    // Token Login with 2FA
-    function tokenLogin(){require2FA(async()=>{const token=document.getElementById('tokenlogin-input')?.value;if(!token){toast('ادخل التوكن','error');return;}window.open('https://chromewebstore.google.com/detail/discord-token-login/pdmpkpjlmnndlfdllmnekbmgjikhghjg','_blank');toast('حمل الإضافة والصق التوكن','success');});}
-    
-    // Bot Login with 2FA
-    function botLogin(){require2FA(async()=>{window.open('https://github.com/aiko-chan-ai/DiscordBotClient/releases/latest/download/DiscordBotClient-win-x64.exe','_blank');toast('جاري التحميل','success');});}
+    // Token + Bot Login with 2FA
+    function tokenLogin(){require2FA(async()=>{const t=document.getElementById('tokenlogin-input')?.value;if(!t){toast('ادخل التوكن','error');return}window.open('https://chromewebstore.google.com/detail/discord-token-login/pdmpkpjlmnndlfdllmnekbmgjikhghjg','_blank');toast('حمل الإضافة والصق التوكن','success')})}
+    function botLogin(){require2FA(async()=>{window.open('https://github.com/aiko-chan-ai/DiscordBotClient/releases/latest/download/DiscordBotClient-win-x64.exe','_blank');toast('جاري التحميل','success')})}
 
-    // Username Sniper with Console
-    function startSniper(){require2FA(async()=>{const token=document.getElementById('sniper-token')?.value,type=document.getElementById('sniper-type')?.value,n=parseInt(document.getElementById('sniper-count')?.value)||20;if(!token){toast('ادخل التوكن','error');return;}document.getElementById('console-sniper').style.display='block';logToConsole('console-sniper','🎯 بدء صيد اليوزرات...','#6F6E9E');const l='abcdefghijklmnopqrstuvwxyz',d='0123456789',r=(s,n)=>Array.from({length:n},()=>s[Math.floor(Math.random()*s.length)]).join('');for(let i=0;i<n;i++){const u=type==='semi-3'?r(l,1)+r(d,2):r(l,2)+r(d,2);try{const res=await fetch('https://discord.com/api/v9/users/@me/pomelo-attempt',{method:'POST',headers:{'Authorization':token,'Content-Type':'application/json'},body:JSON.stringify({username:u})});if(res.status===200){const d=await res.json();if(d.taken===false){logToConsole('console-sniper',`✅ ${u} - متاح`,'#16a34a');}else{logToConsole('console-sniper',`❌ ${u} - ماخوذ`,'#dc2626');}}else{logToConsole('console-sniper',`⚠️ ${u} - Rate Limit`,'#fbbf24');await new Promise(r=>setTimeout(r,5000));}}catch(e){logToConsole('console-sniper',`❌ خطأ`,'#dc2626');}await new Promise(r=>setTimeout(r,300));}logToConsole('console-sniper','✅ اكتمل','#16a34a');});}
+    // Sniper with Console (Green/Red)
+    function startSniper(){require2FA(async()=>{const token=document.getElementById('sniper-token')?.value,type=document.getElementById('sniper-type')?.value,n=parseInt(document.getElementById('sniper-count')?.value)||20;if(!token){toast('ادخل التوكن','error');return}document.getElementById('console-sniper').style.display='block';logToConsole('console-sniper','🎯 بدء الصيد...','var(--accent)');const l='abcdefghijklmnopqrstuvwxyz',d='0123456789',r=(s,n)=>Array.from({length:n},()=>s[Math.floor(Math.random()*s.length)]).join('');for(let i=0;i<n;i++){const u=type==='semi-3'?r(l,1)+r(d,2):r(l,2)+r(d,2);try{const res=await fetch('https://discord.com/api/v9/users/@me/pomelo-attempt',{method:'POST',headers:{'Authorization':token,'Content-Type':'application/json'},body:JSON.stringify({username:u})});if(res.status===200){const d=await res.json();if(d.taken===false){logToConsole('console-sniper',`✅ ${u} - متاح`,'#16a34a')}else{logToConsole('console-sniper',`❌ ${u} - ماخوذ`,'#dc2626')}}else{logToConsole('console-sniper',`⚠️ Rate Limit - انتظار`,'#fbbf24');await new Promise(r=>setTimeout(r,5000))}}catch(e){logToConsole('console-sniper','❌ خطأ','#dc2626')}await new Promise(r=>setTimeout(r,300))}logToConsole('console-sniper','✅ اكتمل','#16a34a')})}
 
-    function loadStats(){document.getElementById('stats-container').innerHTML='<div class="grid-2"><div class="stat-card"><h3>✓</h3><p>نشط</p></div></div>';}
-    function loadLogs(){document.getElementById('logs-container').innerHTML='<div style="padding:10px;">✅ مفعل | 🔑 '+currentKey?.code+'</div>';}
+    function loadStats(){document.getElementById('stats-container').innerHTML='<div class="grid-2"><div class="card" style="text-align:center"><h3>✓</h3><p>نشط</p></div></div>'}
+    function loadLogs(){document.getElementById('logs-container').innerHTML='<div style="padding:10px">✅ مفعل | 🔑 '+currentKey?.code+'</div>'}
 </script>
 </body>
 </html>
