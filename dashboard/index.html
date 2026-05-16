@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FEEL STORE</title>
+    <title>FEEL STORE v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <style>
@@ -11,19 +11,83 @@
             --bg: #010102;
             --bg2: #1a1a2e;
             --accent: #6F6E9E;
+            --accent2: #8B8AD0;
             --text: #E1E1E1;
             --text2: #B0B0B2;
             --border: #51526D;
             --sidebar-width: 260px;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #fbbf24;
+            --glow: 0 0 20px rgba(111,110,158,0.5);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* ===== ANTI DEVTOOLS ===== */
         body {
             background: var(--bg);
             color: var(--text);
             font-family: 'Segoe UI', Tahoma, sans-serif;
             min-height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        /* ===== PARTICLES LAYER ===== */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
         }
         
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* ===== MATRIX BACKGROUND (hidden by default) ===== */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            pointer-events: none;
+            opacity: 0.03;
+        }
+
+        /* ===== CUSTOM SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent2);
+        }
+
         /* ===== SIDEBAR ===== */
         .sidebar {
             position: fixed;
@@ -31,50 +95,122 @@
             right: 0;
             width: var(--sidebar-width);
             height: 100vh;
-            background: var(--bg2);
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
             border-left: 1px solid var(--border);
             padding: 20px;
             display: none;
             flex-direction: column;
             z-index: 1000;
             overflow-y: auto;
+            box-shadow: -5px 0 30px rgba(0,0,0,0.5);
+            animation: slideInRight 0.5s ease;
         }
-        .sidebar.show { display: flex; }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .sidebar.show {
+            display: flex;
+        }
+        
         .sidebar .logo {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: bold;
             text-align: center;
             margin-bottom: 30px;
-            background: linear-gradient(135deg, var(--accent), var(--text));
+            background: linear-gradient(135deg, var(--accent), #a78bfa, var(--accent2));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            animation: logoGlow 3s ease-in-out infinite;
+            text-shadow: var(--glow);
         }
+        
+        @keyframes logoGlow {
+            0%, 100% {
+                filter: brightness(1);
+            }
+            50% {
+                filter: brightness(1.5);
+            }
+        }
+        
         .sidebar .category {
             color: var(--accent);
             font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             padding: 15px 12px 5px;
             font-weight: bold;
+            position: relative;
         }
-        .sidebar nav { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+        
+        .sidebar .category::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 12px;
+            width: 30px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+        
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+        }
+        
         .sidebar nav a {
             color: var(--text2);
             text-decoration: none;
-            padding: 10px 12px;
-            border-radius: 8px;
-            transition: all 0.3s;
+            padding: 12px 15px;
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             cursor: pointer;
             font-size: 13px;
             white-space: nowrap;
+            position: relative;
+            overflow: hidden;
         }
-        .sidebar nav a:hover, .sidebar nav a.active {
-            background: rgba(111,110,158,0.2);
+        
+        .sidebar nav a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--accent);
+            transform: scaleY(0);
+            transition: transform 0.3s;
+        }
+        
+        .sidebar nav a:hover,
+        .sidebar nav a.active {
+            background: rgba(111, 110, 158, 0.15);
             color: var(--text);
+            transform: translateX(-5px);
         }
+        
+        .sidebar nav a:hover::before,
+        .sidebar nav a.active::before {
+            transform: scaleY(1);
+        }
+        
         .sidebar .version {
             text-align: center;
             color: var(--text2);
@@ -87,85 +223,195 @@
         /* ===== MAIN CONTENT ===== */
         .main-content {
             min-height: 100vh;
-            transition: margin-right 0.3s;
+            transition: margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .sidebar.show ~ .main-content {
+        
+        .sidebar.show~.main-content {
             margin-right: var(--sidebar-width);
         }
 
         /* ===== SECTIONS ===== */
-        .section { display: none; }
-        .section.active { display: block; }
+        .section {
+            display: none;
+            animation: fadeSlideIn 0.5s ease;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         /* ===== CARDS ===== */
         .card {
-            background: var(--bg2);
+            background: linear-gradient(145deg, var(--bg2), rgba(26, 26, 46, 0.8));
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 28px;
+            border-radius: 20px;
+            padding: 30px;
             margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
+        
+        .card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 15px 50px rgba(111, 110, 158, 0.2);
+        }
+        
         .card h2 {
-            font-size: 22px;
-            margin-bottom: 20px;
+            font-size: 24px;
+            margin-bottom: 25px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             color: var(--text);
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .card h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            border-radius: 2px;
         }
 
         /* ===== FORM ELEMENTS ===== */
-        input, textarea, select {
-            background: #010102;
+        input,
+        textarea,
+        select {
+            background: rgba(1, 1, 2, 0.8);
             border: 1px solid var(--border);
             color: var(--text);
-            padding: 12px 16px;
-            border-radius: 10px;
+            padding: 14px 18px;
+            border-radius: 12px;
             width: 100%;
             font-size: 14px;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             font-family: inherit;
+            transition: all 0.3s ease;
         }
-        input:focus, textarea:focus, select:focus {
+        
+        input:focus,
+        textarea:focus,
+        select:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(111, 110, 158, 0.2);
+            background: rgba(1, 1, 2, 1);
         }
-        textarea { resize: vertical; min-height: 80px; }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
         label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             color: var(--text2);
             font-size: 13px;
+            font-weight: 600;
         }
 
         /* ===== BUTTONS ===== */
         .btn {
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
             color: #fff;
             border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
+            padding: 14px 28px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
+            font-weight: 700;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 20px rgba(111, 110, 158, 0.3);
+            position: relative;
+            overflow: hidden;
         }
-        .btn:hover { background: #5c5d8a; }
-        .btn-danger { background: #dc2626; }
-        .btn-danger:hover { background: #b91c1c; }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(111, 110, 158, 0.5);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            box-shadow: 0 5px 20px rgba(220, 38, 38, 0.3);
+        }
+        
+        .btn-danger:hover {
+            box-shadow: 0 10px 30px rgba(220, 38, 38, 0.5);
+        }
+        
         .btn-outline {
             background: transparent;
-            border: 1px solid var(--accent);
+            border: 2px solid var(--accent);
             color: var(--accent);
+            box-shadow: none;
         }
-        .btn-outline:hover { background: var(--accent); color: #fff; }
+        
+        .btn-outline:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
 
         /* ===== GRID ===== */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .form-group { margin-bottom: 16px; }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
 
         /* ===== ACTIVATION SCREEN ===== */
         .activation-fullscreen {
@@ -174,75 +420,204 @@
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
+            animation: pulse 4s ease-in-out infinite;
         }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+        
         .activation-card {
-            background: var(--bg2);
+            background: linear-gradient(145deg, var(--bg2), #010102);
             border: 2px solid var(--accent);
-            border-radius: 24px;
-            padding: 50px 40px;
-            max-width: 480px;
+            border-radius: 30px;
+            padding: 60px 50px;
+            max-width: 500px;
             width: 100%;
             text-align: center;
+            box-shadow: 0 20px 60px rgba(111, 110, 158, 0.2);
+            animation: floatUp 1s ease;
         }
-        .activation-card .icon { font-size: 60px; margin-bottom: 20px; }
-        .activation-card h1 { font-size: 28px; margin-bottom: 10px; }
-        .activation-card p { color: var(--text2); margin-bottom: 25px; }
+        
+        @keyframes floatUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .activation-card .icon {
+            font-size: 80px;
+            margin-bottom: 25px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+        
+        .activation-card h1 {
+            font-size: 36px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .activation-card p {
+            color: var(--text2);
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
         .activation-card input {
             text-align: center;
-            font-size: 20px;
-            letter-spacing: 3px;
+            font-size: 22px;
+            letter-spacing: 4px;
             text-transform: uppercase;
-            padding: 14px;
+            padding: 16px;
+            border: 2px dashed var(--border);
         }
+        
         .remember-row {
             display: flex;
             align-items: center;
             gap: 10px;
             justify-content: center;
-            margin: 15px 0;
+            margin: 20px 0;
         }
-        .remember-row input[type="checkbox"] { width: auto; margin: 0; }
-        .remember-row label { color: var(--text2); font-size: 14px; margin: 0; }
+        
+        .remember-row input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            accent-color: var(--accent);
+        }
+        
+        .remember-row label {
+            color: var(--text2);
+            font-size: 14px;
+            margin: 0;
+        }
 
         /* ===== MODAL ===== */
         .modal-overlay {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.97);
             z-index: 2000;
             justify-content: center;
             align-items: center;
+            animation: fadeIn 0.3s;
         }
-        .modal-overlay.show { display: flex; }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
         .modal-card {
-            background: var(--bg2);
+            background: linear-gradient(145deg, var(--bg2), #010102);
             border: 2px solid var(--accent);
-            border-radius: 24px;
-            padding: 30px;
+            border-radius: 25px;
+            padding: 40px;
             width: 90%;
-            max-width: 420px;
+            max-width: 450px;
             text-align: center;
+            box-shadow: 0 30px 80px rgba(111, 110, 158, 0.3);
+            animation: scaleIn 0.4s ease;
         }
-        .modal-card h3 { margin-bottom: 20px; color: var(--accent); }
+        
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .modal-card h3 {
+            margin-bottom: 25px;
+            color: var(--accent);
+            font-size: 24px;
+        }
+        
         .modal-card input {
             text-align: center;
-            letter-spacing: 2px;
-            margin: 10px 0;
+            letter-spacing: 3px;
+            margin: 15px 0;
+            font-size: 18px;
         }
 
-        /* ===== CONSOLE ===== */
+        /* ===== CONSOLE BOX ===== */
         .console-box {
             background: #000;
-            border: 1px solid #51526D;
-            border-radius: 10px;
-            padding: 10px;
-            margin-top: 15px;
-            max-height: 250px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 300px;
             overflow-y: auto;
-            font-family: monospace;
-            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
             color: #B0B0B2;
+            line-height: 1.6;
+        }
+        
+        .console-box .console-header {
+            color: var(--accent);
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .console-box .console-line {
+            padding: 2px 0;
+            animation: typeIn 0.2s ease;
+        }
+        
+        @keyframes typeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         /* ===== TOAST ===== */
@@ -253,24 +628,145 @@
             z-index: 9999;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-        }
-        .toast {
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 14px 20px;
-            min-width: 280px;
-            animation: slideIn 0.3s;
-            display: flex;
-            align-items: center;
             gap: 10px;
         }
-        .toast.success { border-right: 4px solid #16a34a; }
-        .toast.error { border-right: 4px solid #dc2626; }
-        @keyframes slideIn {
-            from { transform: translateX(-100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        
+        .toast {
+            background: rgba(26, 26, 46, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 16px 24px;
+            min-width: 300px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInToast 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .toast.success {
+            border-right: 5px solid #16a34a;
+        }
+        
+        .toast.error {
+            border-right: 5px solid #dc2626;
+        }
+        
+        .toast.info {
+            border-right: 5px solid var(--accent);
+        }
+        
+        @keyframes slideInToast {
+            from {
+                transform: translateX(-120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ===== PROGRESS BAR ===== */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(81, 82, 109, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* ===== STAT CARDS ===== */
+        .stat-card {
+            background: linear-gradient(145deg, var(--bg2), #010102);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(111, 110, 158, 0.3);
+        }
+        
+        .stat-card h3 {
+            font-size: 36px;
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .stat-card p {
+            color: var(--text2);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ===== NITRO RESULTS ===== */
+        .nitro-valid-link {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(22, 163, 74, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 8px;
+            color: var(--success);
+            text-decoration: none;
+            margin: 5px;
+            font-family: monospace;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .nitro-valid-link:hover {
+            background: rgba(22, 163, 74, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .nitro-invalid-link {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid var(--danger);
+            border-radius: 8px;
+            color: var(--danger);
+            text-decoration: none;
+            margin: 5px;
+            font-family: monospace;
+            font-size: 13px;
         }
 
         /* ===== RESPONSIVE ===== */
@@ -282,398 +778,1714 @@
                 border-left: none;
                 border-bottom: 1px solid var(--border);
             }
-            .sidebar.show ~ .main-content { margin-right: 0; }
-            .grid-2 { grid-template-columns: 1fr; }
+            
+            .sidebar.show~.main-content {
+                margin-right: 0;
+            }
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .activation-card {
+                padding: 40px 30px;
+            }
+        }
+
+        /* ===== TAGS/BADGES ===== */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: rgba(22, 163, 74, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .badge-error {
+            background: rgba(220, 38, 38, 0.15);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        
+        .badge-warning {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+        
+        .badge-info {
+            background: rgba(111, 110, 158, 0.15);
+            color: var(--accent);
+            border: 1px solid var(--accent);
         }
     </style>
 </head>
 <body>
 
-<!-- PARTICLES -->
-<canvas id="particles" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;"></canvas>
+    <!-- PARTICLES -->
+    <canvas id="particles-canvas"></canvas>
+    <canvas id="stars-canvas"></canvas>
 
-<!-- SIDEBAR -->
-<aside class="sidebar" id="main-sidebar">
-    <div class="logo">FEEL STORE</div>
-    <nav>
-        <div class="category">🔧 الأساسية</div>
-        <a data-section="webhook">📨 مرسل الويبهوك</a>
-        <a data-section="embed">🎨 منشئ الامبد</a>
-        <a data-section="spam">💣 سبام</a>
-        <a data-section="profile">👤 تغيير المظهر</a>
-        <a data-section="multi">📡 متعدد</a>
-        <a data-section="scheduler">⏰ جدولة</a>
-        <a data-section="deleter">🗑️ حذف</a>
-        <a data-section="json">📝 JSON</a>
-        <div class="category">💎 المميزة</div>
-        <a data-section="server-cloner">📋 نسخ السيرفرات</a>
-        <a data-section="booster">🚀 بوستات</a>
-        <a data-section="nitro-gen">🎁 نيترو</a>
-        <a data-section="nitro-pro">💎 نيترو برو</a>
-        <a data-section="nitro-promo">👑 برومو</a>
-        <a data-section="token-login">🔐 دخول توكن</a>
-        <a data-section="bot-login">🤖 دخول بوت</a>
-        <a data-section="username-sniper">🎯 صيد يوزرات</a>
-        <div class="category">📊 النظام</div>
-        <a data-section="stats">📊 إحصائيات</a>
-        <a data-section="logs">📋 سجلات</a>
-    </nav>
-    <div class="version">FEEL STORE v1.0</div>
-</aside>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="main-sidebar">
+        <div class="logo">⚡ FEEL STORE</div>
+        <nav>
+            <div class="category">🔧 الأساسية</div>
+            <a data-section="webhook">📨 مرسل الويبهوك</a>
+            <a data-section="embed">🎨 منشئ الامبد</a>
+            <a data-section="spam">💣 سبام</a>
+            <a data-section="profile">👤 تغيير المظهر</a>
+            <a data-section="multi">📡 متعدد</a>
+            <a data-section="scheduler">⏰ جدولة</a>
+            <a data-section="deleter">🗑️ حذف</a>
+            <a data-section="json">📝 JSON</a>
+            <div class="category">💎 المميزة</div>
+            <a data-section="server-cloner">📋 نسخ السيرفرات</a>
+            <a data-section="booster">🚀 بوستات</a>
+            <a data-section="nitro-gen">🎁 نيترو عادي</a>
+            <a data-section="nitro-pro">💎 نيترو برو</a>
+            <a data-section="nitro-promo">👑 برومو 3 شهور</a>
+            <a data-section="nitro-checker">🔍 فاحص نيترو</a>
+            <a data-section="token-login">🔐 دخول توكن</a>
+            <a data-section="bot-login">🤖 دخول بوت</a>
+            <a data-section="username-sniper">🎯 صيد يوزرات</a>
+            <div class="category">📊 النظام</div>
+            <a data-section="stats">📊 إحصائيات</a>
+            <a data-section="logs">📋 سجلات</a>
+        </nav>
+        <div class="version">⚡ FEEL STORE v2.0</div>
+    </aside>
 
-<!-- MAIN CONTENT -->
-<div class="main-content">
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
 
-    <!-- ACTIVATION SCREEN -->
-    <div id="activation-screen" class="section active">
-        <div class="activation-fullscreen">
-            <div class="activation-card">
-                <div class="icon">🔐</div>
-                <h1>FEEL STORE</h1>
-                <p>أدخل مفتاح الترخيص للدخول إلى المتجر</p>
-                <input type="text" id="key-input" placeholder="FEEL-XXXX-XXXX-XXXX">
-                <div class="remember-row">
-                    <input type="checkbox" id="remember-me">
-                    <label for="remember-me">تذكرني</label>
-                </div>
-                <button class="btn" onclick="activate()" style="width:100%;justify-content:center;">🔓 تفعيل</button>
-                <div id="activation-status" style="margin-top:15px;font-size:14px;"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- DASHBOARD CONTENT -->
-    <div id="dashboard-content" class="section">
-        <div class="card" style="background:linear-gradient(135deg, var(--bg2), #010102);border-color:var(--border);">
-            <h2 style="margin:0;">👋 مرحباً بك في <span style="color:var(--accent);">FEEL STORE</span></h2>
-            <p style="color:var(--text2);margin-top:5px;">اختر أداة من القائمة الجانبية</p>
-        </div>
-
-        <!-- 1. Webhook -->
-        <div id="section-webhook" class="section">
-            <div class="card"><h2>📨 مرسل الويبهوك</h2>
-                <div class="form-group"><input id="wh-url" placeholder="رابط الويبهوك"></div>
-                <div class="form-group"><textarea id="wh-content" placeholder="الرسالة"></textarea></div>
-                <button class="btn" onclick="sendWebhook()">🚀 إرسال</button>
-            </div>
-        </div>
-
-        <!-- 2. Embed -->
-        <div id="section-embed" class="section">
-            <div class="card"><h2>🎨 منشئ الامبد</h2>
-                <div class="grid-2">
-                    <div>
-                        <div class="form-group"><input id="emb-url" placeholder="رابط الويبهوك"></div>
-                        <div class="form-group"><input id="emb-title" placeholder="عنوان الامبد"></div>
-                        <div class="form-group"><textarea id="emb-desc" placeholder="وصف الامبد"></textarea></div>
-                        <div class="form-group"><input type="color" id="emb-color" value="#6F6E9E" style="height:45px;padding:5px;"></div>
-                        <button class="btn" onclick="sendEmbed()">🚀 إرسال</button>
+        <!-- ACTIVATION SCREEN -->
+        <div id="activation-screen" class="section active">
+            <div class="activation-fullscreen">
+                <div class="activation-card">
+                    <div class="icon">🔐</div>
+                    <h1>FEEL STORE</h1>
+                    <p>أدخل مفتاح الترخيص للدخول إلى المتجر</p>
+                    <input type="text" id="key-input" placeholder="FEEL-XXXX-XXXX-XXXX">
+                    <div class="remember-row">
+                        <input type="checkbox" id="remember-me">
+                        <label for="remember-me">تذكرني على هذا الجهاز</label>
                     </div>
-                    <div style="color:var(--text2);">معاينة</div>
+                    <button class="btn" onclick="activateSystem()" style="width:100%;justify-content:center;">
+                        🔓 تفعيل
+                    </button>
+                    <div id="activation-status" style="margin-top:20px;font-size:14px;"></div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. Spam -->
-        <div id="section-spam" class="section">
-            <div class="card"><h2>💣 سبام الويبهوك</h2>
-                <div class="form-group"><input id="spam-url" placeholder="رابط الويبهوك"></div>
-                <div class="form-group"><textarea id="spam-msg" placeholder="رسالة السبام"></textarea></div>
-                <div class="grid-2">
-                    <input type="number" id="spam-amount" value="10" placeholder="العدد">
-                    <input type="number" id="spam-delay" value="500" placeholder="التأخير (مللي)">
-                </div>
-                <button class="btn" onclick="startSpam()">💣 بدء</button>
+        <!-- DASHBOARD CONTENT -->
+        <div id="dashboard-content" class="section">
+            <div class="card" style="text-align:center;padding:40px;">
+                <h2 style="justify-content:center;">👋 مرحباً بك في <span style="color:var(--accent);">FEEL STORE</span></h2>
+                <p style="color:var(--text2);font-size:16px;">اختر أداة من القائمة الجانبية للبدء</p>
             </div>
-        </div>
 
-        <!-- 4. Profile -->
-        <div id="section-profile" class="section">
-            <div class="card"><h2>👤 تغيير مظهر الويبهوك</h2>
-                <div class="form-group"><input id="prof-url" placeholder="رابط الويبهوك"></div>
-                <div class="grid-2">
-                    <input id="prof-name" placeholder="الاسم الجديد">
-                    <input id="prof-avatar" placeholder="رابط الصورة">
-                </div>
-                <button class="btn" onclick="changeProfile()">💾 تحديث</button>
-            </div>
-        </div>
-
-        <!-- 5. Multi -->
-        <div id="section-multi" class="section">
-            <div class="card"><h2>📡 ويبهوكات متعددة</h2>
-                <textarea id="multi-urls" rows="4" placeholder="كل رابط في سطر"></textarea>
-                <textarea id="multi-msg" placeholder="الرسالة للجميع"></textarea>
-                <button class="btn" onclick="sendMulti()">📡 إرسال للكل</button>
-            </div>
-        </div>
-
-        <!-- 6. Scheduler -->
-        <div id="section-scheduler" class="section">
-            <div class="card"><h2>⏰ جدولة الرسائل</h2>
-                <div class="form-group"><input id="sched-url" placeholder="رابط الويبهوك"></div>
-                <textarea id="sched-msg" placeholder="الرسالة المجدولة"></textarea>
-                <button class="btn" onclick="startScheduler()">⏰ بدء</button>
-            </div>
-        </div>
-
-        <!-- 7. Deleter -->
-        <div id="section-deleter" class="section">
-            <div class="card"><h2>🗑️ حذف رسائل الويبهوك</h2>
-                <div class="grid-2">
-                    <input id="del-url" placeholder="رابط الويبهوك">
-                    <input id="del-msgid" placeholder="معرف الرسالة">
-                </div>
-                <button class="btn btn-danger" onclick="deleteMessage()">🗑️ حذف</button>
-            </div>
-        </div>
-
-        <!-- 8. JSON -->
-        <div id="section-json" class="section">
-            <div class="card"><h2>📝 مرسل JSON</h2>
-                <div class="form-group"><input id="json-url" placeholder="رابط الويبهوك"></div>
-                <textarea id="json-payload" rows="6" placeholder='{"content": "مرحباً"}'></textarea>
-                <button class="btn" onclick="sendJSON()">📝 إرسال</button>
-            </div>
-        </div>
-
-        <!-- 9. Server Cloner -->
-        <div id="section-server-cloner" class="section">
-            <div class="card"><h2>📋 نسخ السيرفرات</h2>
-                <input type="password" id="cloner-token" placeholder="توكن الحساب">
-                <div class="grid-2">
-                    <input id="cloner-source" placeholder="ايدي المصدر">
-                    <input id="cloner-target" placeholder="ايدي الهدف">
-                </div>
-                <button class="btn" onclick="cloneServer()">📋 بدء</button>
-            </div>
-        </div>
-
-        <!-- 10. Booster -->
-        <div id="section-booster" class="section">
-            <div class="card"><h2>🚀 ضرب بوستات</h2>
-                <textarea id="boost-tokens" rows="4" placeholder="توكنات الحسابات (كل توكن في سطر)"></textarea>
-                <input id="boost-invite" placeholder="رابط دعوة السيرفر">
-                <button class="btn" onclick="startBooster()">🚀 بدء</button>
-            </div>
-        </div>
-
-        <!-- 11. Nitro Gen -->
-        <div id="section-nitro-gen" class="section">
-            <div class="card"><h2>🎁 توليد نيترو</h2>
-                <input id="nitrogen-webhook" placeholder="ويبهوك النتائج">
-                <div class="grid-2">
-                    <input type="number" id="nitrogen-count" value="100" placeholder="عدد الأكواد">
-                    <input type="number" id="nitrogen-threads" value="5" placeholder="الخيوط">
-                </div>
-                <button class="btn" onclick="startNitroGen()">🎁 بدء</button>
-                <div class="console-box" id="console-nitro-gen" style="display:none;">
-                    <div style="color:var(--accent);margin-bottom:5px;">📟 Console - Nitro Gen</div>
+            <!-- Webhook -->
+            <div id="section-webhook" class="section">
+                <div class="card">
+                    <h2>📨 مرسل الويبهوك</h2>
+                    <div class="form-group"><label>رابط الويبهوك</label><input id="wh-url" placeholder="https://discord.com/api/webhooks/..."></div>
+                    <div class="form-group"><label>الرسالة</label><textarea id="wh-content" placeholder="أكتب رسالتك هنا..."></textarea></div>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:15px;">
+                        <input type="checkbox" id="wh-everyone" style="width:auto;"> @everyone
+                    </label>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <button class="btn" onclick="checkWebhook()">🔍 فحص</button>
+                        <button class="btn" onclick="sendWebhook()">🚀 إرسال</button>
+                        <button class="btn btn-outline btn-sm" onclick="saveWebhook()">💾 حفظ</button>
+                    </div>
+                    <div id="wh-info" style="margin-top:15px;"></div>
+                    <div id="wh-result" style="margin-top:10px;"></div>
+                    <div class="console-box" id="console-webhook" style="display:none;">
+                        <div class="console-header">📟 Console - Webhook</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 12. Nitro Pro -->
-        <div id="section-nitro-pro" class="section">
-            <div class="card"><h2>💎 توليد نيترو برو</h2>
-                <input id="nitropro-webhook" placeholder="ويبهوك النتائج">
-                <div class="grid-2">
-                    <input type="number" id="nitropro-count" value="500" placeholder="عدد الأكواد">
-                    <input type="number" id="nitropro-threads" value="10" placeholder="الخيوط">
-                </div>
-                <button class="btn" onclick="startNitroPro()">💎 بدء</button>
-                <div class="console-box" id="console-nitro-pro" style="display:none;">
-                    <div style="color:var(--accent);margin-bottom:5px;">📟 Console - Nitro Pro</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 13. Nitro Promo -->
-        <div id="section-nitro-promo" class="section">
-            <div class="card"><h2>👑 برومو نيترو 3 شهور</h2>
-                <input id="nitropromo-webhook" placeholder="ويبهوك النتائج">
-                <div class="grid-2">
-                    <input type="number" id="nitropromo-count" value="300" placeholder="عدد الأكواد">
-                    <input type="number" id="nitropromo-threads" value="8" placeholder="الخيوط">
-                </div>
-                <button class="btn" onclick="startNitroPromo()">👑 بدء</button>
-                <div class="console-box" id="console-nitro-promo" style="display:none;">
-                    <div style="color:var(--accent);margin-bottom:5px;">📟 Console - Nitro Promo</div>
+            <!-- Embed -->
+            <div id="section-embed" class="section">
+                <div class="card">
+                    <h2>🎨 منشئ الامبد</h2>
+                    <div class="grid-2">
+                        <div>
+                            <div class="form-group"><label>رابط الويبهوك</label><input id="emb-url" placeholder="رابط الويبهوك"></div>
+                            <div class="form-group"><label>عنوان الامبد</label><input id="emb-title" placeholder="العنوان"></div>
+                            <div class="form-group"><label>وصف الامبد</label><textarea id="emb-desc" placeholder="الوصف"></textarea></div>
+                            <div class="form-group"><label>لون الشريط الجانبي</label><input type="color" id="emb-color" value="#6F6E9E" style="height:50px;padding:5px;"></div>
+                            <div class="form-group"><label>رابط الصورة</label><input id="emb-image" placeholder="https://example.com/image.png"></div>
+                            <div class="form-group"><label>نص التذييل</label><input id="emb-footer" placeholder="التذييل"></div>
+                            <button class="btn" onclick="sendEmbed()">🚀 إرسال الامبد</button>
+                            <div id="emb-result" style="margin-top:10px;"></div>
+                        </div>
+                        <div style="background:#010102;border:1px solid var(--border);border-radius:16px;padding:20px;">
+                            <div style="color:var(--text2);margin-bottom:15px;font-weight:bold;">👁 معاينة الامبد</div>
+                            <div id="embed-preview" style="background:#2f3136;border-radius:8px;border-right:4px solid #6F6E9E;padding:20px;">
+                                <div style="color:#00b0f4;font-weight:bold;margin-bottom:8px;" id="preview-title">العنوان هنا</div>
+                                <div style="color:#dcddde;font-size:13px;" id="preview-desc">الوصف هنا</div>
+                                <img id="preview-image" src="" style="max-width:100%;border-radius:6px;margin-top:10px;display:none;">
+                                <div style="color:#72767d;font-size:11px;margin-top:10px;" id="preview-footer">التذييل</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 14. Token Login -->
-        <div id="section-token-login" class="section">
-            <div class="card"><h2>🔐 دخول بالتوكن</h2>
-                <p style="color:var(--text2);margin-bottom:12px;">حمل إضافة Discord Token Login من سوق كروم</p>
-                <input type="password" id="tokenlogin-input" placeholder="توكن الحساب">
-                <button class="btn" onclick="tokenLogin()">🔐 دخول</button>
-            </div>
-        </div>
-
-        <!-- 15. Bot Login -->
-        <div id="section-bot-login" class="section">
-            <div class="card"><h2>🤖 دخول بوت</h2>
-                <p style="color:var(--text2);margin-bottom:12px;">تحميل برنامج DiscordBotClient</p>
-                <button class="btn" onclick="botLogin()">⬇️ تحميل البرنامج</button>
-            </div>
-        </div>
-
-        <!-- 16. Username Sniper -->
-        <div id="section-username-sniper" class="section">
-            <div class="card"><h2>🎯 صيد اليوزرات</h2>
-                <input type="password" id="sniper-token" placeholder="توكن الحساب">
-                <select id="sniper-type">
-                    <option value="semi-3">شبه ثلاثي (حرف + رقمين)</option>
-                    <option value="semi-4">شبه رباعي (حرفين + رقمين)</option>
-                </select>
-                <input type="number" id="sniper-count" value="100" placeholder="عدد المحاولات">
-                <button class="btn" onclick="startSniper()">🎯 بدء</button>
-                <div class="console-box" id="console-sniper" style="display:none;">
-                    <div style="color:var(--accent);margin-bottom:5px;">📟 Console - Sniper</div>
+            <!-- Spam -->
+            <div id="section-spam" class="section">
+                <div class="card">
+                    <h2>💣 سبام الويبهوك</h2>
+                    <div class="form-group"><label>رابط الويبهوك</label><input id="spam-url" placeholder="رابط الويبهوك"></div>
+                    <div class="form-group"><label>رسالة السبام</label><textarea id="spam-msg" placeholder="الرسالة"></textarea></div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>عدد الرسائل</label><input type="number" id="spam-amount" value="10"></div>
+                        <div class="form-group"><label>التأخير (مللي ثانية)</label><input type="number" id="spam-delay" value="500"></div>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn" id="spam-start" onclick="startSpam()">💣 بدء السبام</button>
+                        <button class="btn btn-danger" id="spam-stop" onclick="stopSpam()" style="display:none;">⏹ إيقاف</button>
+                    </div>
+                    <div id="spam-status" style="margin-top:10px;color:var(--accent);"></div>
+                    <div class="progress-bar"><div class="progress-fill" id="spam-progress" style="width:0%;"></div></div>
+                    <div class="console-box" id="console-spam" style="display:none;">
+                        <div class="console-header">📟 Console - Spam</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 17. Stats -->
-        <div id="section-stats" class="section">
-            <div class="card"><h2>📊 إحصائيات النظام</h2><div id="stats-container"></div></div>
-        </div>
+            <!-- Profile -->
+            <div id="section-profile" class="section">
+                <div class="card">
+                    <h2>👤 تغيير مظهر الويبهوك</h2>
+                    <div class="form-group"><label>رابط الويبهوك</label><input id="prof-url" placeholder="رابط الويبهوك"></div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>الاسم الجديد</label><input id="prof-name" placeholder="اسم الويبهوك"></div>
+                        <div class="form-group"><label>رابط الصورة الرمزية</label><input id="prof-avatar" placeholder="https://..."></div>
+                    </div>
+                    <button class="btn" onclick="changeProfile()">💾 تحديث المظهر</button>
+                    <div id="prof-result" style="margin-top:10px;"></div>
+                    <div class="console-box" id="console-profile" style="display:none;">
+                        <div class="console-header">📟 Console - Profile</div>
+                    </div>
+                </div>
+            </div>
 
-        <!-- 18. Logs -->
-        <div id="section-logs" class="section">
-            <div class="card"><h2>📋 سجلات النظام</h2>
-                <div id="logs-container" style="max-height:400px;overflow-y:auto;background:#010102;border-radius:10px;padding:10px;"></div>
+            <!-- Multi -->
+            <div id="section-multi" class="section">
+                <div class="card">
+                    <h2>📡 ويبهوكات متعددة</h2>
+                    <div class="form-group"><label>روابط الويبهوكات (كل رابط في سطر)</label><textarea id="multi-urls" rows="5" placeholder="https://discord.com/api/webhooks/1...&#10;https://discord.com/api/webhooks/2..."></textarea></div>
+                    <div class="form-group"><label>الرسالة للجميع</label><textarea id="multi-msg" placeholder="الرسالة"></textarea></div>
+                    <button class="btn" onclick="sendMulti()">📡 إرسال للكل</button>
+                    <div id="multi-result" style="margin-top:10px;"></div>
+                    <div class="console-box" id="console-multi" style="display:none;">
+                        <div class="console-header">📟 Console - Multi</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scheduler -->
+            <div id="section-scheduler" class="section">
+                <div class="card">
+                    <h2>⏰ جدولة الرسائل</h2>
+                    <div class="form-group"><label>رابط الويبهوك</label><input id="sched-url" placeholder="رابط الويبهوك"></div>
+                    <div class="form-group"><label>الرسالة المجدولة</label><textarea id="sched-msg" placeholder="الرسالة"></textarea></div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>التأخير (ثواني)</label><input type="number" id="sched-delay" value="5"></div>
+                        <div class="form-group"><label>عدد التكرارات</label><input type="number" id="sched-repeat" value="1"></div>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn" id="sched-start" onclick="startScheduler()">⏰ بدء الجدولة</button>
+                        <button class="btn btn-danger" id="sched-stop" onclick="stopScheduler()" style="display:none;">⏹ إيقاف</button>
+                    </div>
+                    <div id="sched-status" style="margin-top:10px;color:var(--accent);"></div>
+                    <div class="console-box" id="console-scheduler" style="display:none;">
+                        <div class="console-header">📟 Console - Scheduler</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deleter -->
+            <div id="section-deleter" class="section">
+                <div class="card">
+                    <h2>🗑️ حذف رسائل الويبهوك</h2>
+                    <div class="grid-2">
+                        <div class="form-group"><label>رابط الويبهوك</label><input id="del-url" placeholder="رابط الويبهوك"></div>
+                        <div class="form-group"><label>معرف الرسالة</label><input id="del-msgid" placeholder="Message ID"></div>
+                    </div>
+                    <button class="btn btn-danger" onclick="deleteMessage()">🗑️ حذف الرسالة</button>
+                    <div id="del-result" style="margin-top:10px;"></div>
+                    <div class="console-box" id="console-deleter" style="display:none;">
+                        <div class="console-header">📟 Console - Deleter</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JSON -->
+            <div id="section-json" class="section">
+                <div class="card">
+                    <h2>📝 مرسل JSON مخصص</h2>
+                    <div class="form-group"><label>رابط الويبهوك</label><input id="json-url" placeholder="رابط الويبهوك"></div>
+                    <div class="form-group"><label>JSON Payload</label><textarea id="json-payload" rows="8" placeholder='{"content": "مرحباً", "embeds": [{"title": "عنوان"}]}'></textarea></div>
+                    <button class="btn" onclick="sendJSON()">📝 إرسال JSON</button>
+                    <div id="json-result" style="margin-top:10px;"></div>
+                    <div class="console-box" id="console-json" style="display:none;">
+                        <div class="console-header">📟 Console - JSON</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Server Cloner -->
+            <div id="section-server-cloner" class="section">
+                <div class="card">
+                    <h2>📋 نسخ السيرفرات</h2>
+                    <div class="form-group"><label>توكن الحساب</label><input type="password" id="cloner-token" placeholder="توكن حساب ديسكورد"></div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>ايدي السيرفر المصدر</label><input id="cloner-source" placeholder="Source Server ID"></div>
+                        <div class="form-group"><label>ايدي السيرفر الهدف</label><input id="cloner-target" placeholder="Target Server ID"></div>
+                    </div>
+                    <div style="display:flex;gap:15px;margin-bottom:15px;flex-wrap:wrap;">
+                        <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="cloner-channels" checked style="width:auto;"> نسخ الرومات</label>
+                        <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="cloner-roles" checked style="width:auto;"> نسخ الرتب</label>
+                        <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="cloner-delete-first" style="width:auto;"> حذف القديم أولاً</label>
+                    </div>
+                    <button class="btn" onclick="cloneServer()">📋 بدء النسخ</button>
+                    <div id="cloner-result" style="margin-top:10px;"></div>
+                    <div class="console-box" id="console-cloner" style="display:none;">
+                        <div class="console-header">📟 Console - Server Cloner</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booster -->
+            <div id="section-booster" class="section">
+                <div class="card">
+                    <h2>🚀 ضرب بوستات</h2>
+                    <div class="form-group"><label>توكنات الحسابات (كل توكن في سطر)</label><textarea id="boost-tokens" rows="4" placeholder="توكن1&#10;توكن2&#10;توكن3"></textarea></div>
+                    <div class="form-group"><label>رابط دعوة السيرفر</label><input id="boost-invite" placeholder="https://discord.gg/..."></div>
+                    <button class="btn" id="boost-start" onclick="startBooster()">🚀 بدء ضرب البوستات</button>
+                    <div class="progress-bar"><div class="progress-fill" id="boost-progress" style="width:0%;"></div></div>
+                    <div id="boost-result" style="margin-top:10px;max-height:300px;overflow-y:auto;"></div>
+                    <div class="console-box" id="console-booster" style="display:none;">
+                        <div class="console-header">📟 Console - Booster</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nitro Gen -->
+            <div id="section-nitro-gen" class="section">
+                <div class="card">
+                    <h2>🎁 توليد نيترو عادي</h2>
+                    <div class="form-group"><label>ويبهوك النتائج (اختياري)</label><input id="nitrogen-webhook" placeholder="اتركه فارغاً للكونسول فقط"></div>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:15px;">
+                        <input type="checkbox" id="nitrogen-send-webhook" style="width:auto;"> إرسال الروابط للويبهوك
+                    </label>
+                    <div class="grid-2">
+                        <div class="form-group"><label>عدد الأكواد</label><input type="number" id="nitrogen-count" value="100"></div>
+                        <div class="form-group"><label>عدد الخيوط</label><input type="number" id="nitrogen-threads" value="5"></div>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn" id="nitrogen-start" onclick="startNitroGen()">🎁 بدء التوليد</button>
+                        <button class="btn btn-danger" id="nitrogen-stop" onclick="stopNitroGen()" style="display:none;">⏹ إيقاف</button>
+                    </div>
+                    <div id="nitrogen-result" style="margin-top:10px;color:var(--accent);"></div>
+                    <div class="progress-bar"><div class="progress-fill" id="nitrogen-progress" style="width:0%;"></div></div>
+                    <div id="nitrogen-valid" style="margin-top:10px;max-height:200px;overflow-y:auto;"></div>
+                    <div class="console-box" id="console-nitrogen" style="max-height:350px;">
+                        <div class="console-header">📟 Console - Nitro Gen</div>
+                        <div id="nitrogen-console-lines"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nitro Pro -->
+            <div id="section-nitro-pro" class="section">
+                <div class="card">
+                    <h2>💎 توليد نيترو برو</h2>
+                    <div class="form-group"><label>ويبهوك النتائج (اختياري)</label><input id="nitropro-webhook" placeholder="اتركه فارغاً للكونسول فقط"></div>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:15px;">
+                        <input type="checkbox" id="nitropro-send-webhook" style="width:auto;"> إرسال الروابط للويبهوك
+                    </label>
+                    <div class="grid-2">
+                        <div class="form-group"><label>عدد الأكواد</label><input type="number" id="nitropro-count" value="500"></div>
+                        <div class="form-group"><label>عدد الخيوط</label><input type="number" id="nitropro-threads" value="10"></div>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn" id="nitropro-start" onclick="startNitroPro()">💎 بدء التوليد</button>
+                        <button class="btn btn-danger" id="nitropro-stop" onclick="stopNitroPro()" style="display:none;">⏹ إيقاف</button>
+                    </div>
+                    <div id="nitropro-result" style="margin-top:10px;color:var(--accent);"></div>
+                    <div class="progress-bar"><div class="progress-fill" id="nitropro-progress" style="width:0%;"></div></div>
+                    <div id="nitropro-valid" style="margin-top:10px;max-height:200px;overflow-y:auto;"></div>
+                    <div class="console-box" id="console-nitropro" style="max-height:350px;">
+                        <div class="console-header">📟 Console - Nitro Pro</div>
+                        <div id="nitropro-console-lines"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nitro Promo -->
+            <div id="section-nitro-promo" class="section">
+                <div class="card">
+                    <h2>👑 برومو نيترو 3 شهور</h2>
+                    <div class="form-group"><label>ويبهوك النتائج (اختياري)</label><input id="nitropromo-webhook" placeholder="اتركه فارغاً للكونسول فقط"></div>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:15px;">
+                        <input type="checkbox" id="nitropromo-send-webhook" style="width:auto;"> إرسال الروابط للويبهوك
+                    </label>
+                    <div class="grid-2">
+                        <div class="form-group"><label>عدد الأكواد</label><input type="number" id="nitropromo-count" value="300"></div>
+                        <div class="form-group"><label>عدد الخيوط</label><input type="number" id="nitropromo-threads" value="8"></div>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn" id="nitropromo-start" onclick="startNitroPromo()">👑 بدء التوليد</button>
+                        <button class="btn btn-danger" id="nitropromo-stop" onclick="stopNitroPromo()" style="display:none;">⏹ إيقاف</button>
+                    </div>
+                    <div id="nitropromo-result" style="margin-top:10px;color:var(--accent);"></div>
+                    <div class="progress-bar"><div class="progress-fill" id="nitropromo-progress" style="width:0%;"></div></div>
+                    <div id="nitropromo-valid" style="margin-top:10px;max-height:200px;overflow-y:auto;"></div>
+                    <div class="console-box" id="console-nitropromo" style="max-height:350px;">
+                        <div class="console-header">📟 Console - Nitro Promo</div>
+                        <div id="nitropromo-console-lines"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nitro Checker -->
+            <div id="section-nitro-checker" class="section">
+                <div class="card">
+                    <h2>🔍 فاحص أكواد النيترو</h2>
+                    <div class="form-group"><label>أكواد النيترو (كل كود في سطر)</label><textarea id="checker-codes" rows="6" placeholder="https://discord.gift/xxxx&#10;https://discord.gift/yyyy&#10;أو اكتب الكود فقط: xxxx"></textarea></div>
+                    <div class="form-group"><label>ويبهوك النتائج (اختياري)</label><input id="checker-webhook" placeholder="لإرسال النتائج للويبهوك"></div>
+                    <button class="btn" onclick="checkNitroCodes()">🔍 بدء الفحص</button>
+                    <div id="checker-result" style="margin-top:15px;"></div>
+                    <div id="checker-valid" style="margin-top:10px;max-height:300px;overflow-y:auto;"></div>
+                    <div class="console-box" id="console-checker" style="max-height:350px;">
+                        <div class="console-header">📟 Console - Nitro Checker</div>
+                        <div id="checker-console-lines"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Token Login -->
+            <div id="section-token-login" class="section">
+                <div class="card">
+                    <h2>🔐 دخول بالتوكن</h2>
+                    <p style="color:var(--text2);margin-bottom:15px;">أدخل التوكن وسيتم تسجيل الدخول مباشرة</p>
+                    <div class="form-group"><label>توكن الحساب</label><input type="password" id="tokenlogin-input" placeholder="توكن حساب ديسكورد"></div>
+                    <button class="btn" onclick="tokenLoginDirect()">🔐 دخول مباشر</button>
+                    <div id="tokenlogin-result" style="margin-top:15px;"></div>
+                    <div class="console-box" id="console-tokenlogin" style="display:none;">
+                        <div class="console-header">📟 Console - Token Login</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bot Login -->
+            <div id="section-bot-login" class="section">
+                <div class="card">
+                    <h2>🤖 دخول بوت</h2>
+                    <p style="color:var(--text2);margin-bottom:15px;">حمل أداة DiscordBotClient لتشغيل البوت</p>
+                    <button class="btn" id="bot-download-btn" onclick="downloadBotClient()">⬇️ تحميل DiscordBotClient</button>
+                    <div id="botlogin-result" style="margin-top:15px;"></div>
+                </div>
+            </div>
+
+            <!-- Username Sniper -->
+            <div id="section-username-sniper" class="section">
+                <div class="card">
+                    <h2>🎯 صيد اليوزرات</h2>
+                    <div class="form-group"><label>توكن الحساب</label><input type="password" id="sniper-token" placeholder="توكن الحساب"></div>
+                    <div class="form-group">
+                        <label>نوع اليوزر</label>
+                        <select id="sniper-type" onchange="toggleSniperOptions()">
+                            <option value="semi-3">شبه ثلاثي (حرف + رقمين)</option>
+                            <option value="semi-4">شبه رباعي (حرفين + رقمين)</option>
+                            <option value="custom">مخصص</option>
+                            <option value="random">عشوائي</option>
+                        </select>
+                    </div>
+                    <div id="sniper-custom" style="display:none;">
+                        <div class="grid-2">
+                            <div class="form-group"><label>عدد الحروف</label><input type="number" id="sniper-letters" value="2"></div>
+                            <div class="form-group"><label>عدد الأرقام</label><input type="number" id="sniper-numbers" value="2"></div>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>ويبهوك النتائج (اختياري)</label><input id="sniper-webhook" placeholder="رابط الويبهوك"></div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>عدد المحاولات</label><input type="number" id="sniper-count" value="100"></div>
+                        <div class="form-group"><label>التأخير (ثواني)</label><input type="number" id="sniper-delay" value="0.5" step="0.1"></div>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn" id="sniper-start" onclick="startSniper()">🎯 بدء الصيد</button>
+                        <button class="btn btn-danger" id="sniper-stop" onclick="stopSniper()" style="display:none;">⏹ إيقاف</button>
+                    </div>
+                    <div id="sniper-result" style="margin-top:10px;max-height:400px;overflow-y:auto;"></div>
+                    <div class="console-box" id="console-sniper" style="max-height:350px;">
+                        <div class="console-header">📟 Console - Sniper</div>
+                        <div id="sniper-console-lines"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div id="section-stats" class="section">
+                <div class="card">
+                    <h2>📊 إحصائيات النظام</h2>
+                    <div class="grid-2" id="stats-container"></div>
+                </div>
+            </div>
+
+            <!-- Logs -->
+            <div id="section-logs" class="section">
+                <div class="card">
+                    <h2>📋 سجلات النظام</h2>
+                    <div id="logs-container" style="max-height:500px;overflow-y:auto;background:#010102;border-radius:12px;padding:15px;"></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- MODAL 2FA -->
-<div class="modal-overlay" id="twofaModal">
-    <div class="modal-card">
-        <h3>🔐 تحقق أمني مطلوب</h3>
-        <p style="color:var(--text2);margin-bottom:15px;">لتشغيل هذه الأداة، أدخل مفتاح التفعيل</p>
-        <input type="text" id="twofa-input" placeholder="FEEL-XXXX-XXXX-XXXX" style="text-align:center;letter-spacing:3px;font-size:16px;text-transform:uppercase;">
-        <div style="display:flex;gap:10px;margin-top:20px;justify-content:center;">
-            <button class="btn" id="twofa-confirm">✅ تأكيد</button>
-            <button class="btn btn-outline" id="twofa-cancel">إلغاء</button>
-        </div>
-        <div id="twofa-error" style="color:#f87171;margin-top:10px;font-size:13px;"></div>
-    </div>
-</div>
+    <div class="toast-container" id="toast-container"></div>
 
-<div class="toast-container" id="toast-container"></div>
+    <script>
+        // ========== ANTI-DEBUG & PROTECTION ==========
+        (function() {
+            // Detect DevTools
+            const devtoolsCheck = () => {
+                const threshold = 160;
+                const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+                const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+                if (widthThreshold || heightThreshold) {
+                    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#010102;color:#dc2626;font-size:24px;text-align:center;flex-direction:column;"><div style="font-size:80px;">🚫</div><h1>Developer Tools Detected!</h1><p>Please close DevTools to continue</p></div>';
+                }
+            };
+            setInterval(devtoolsCheck, 1000);
 
-<script>
-    const socket = io();
-    let currentKey = null;
-    let pendingAction = null;
+            // Disable Right Click
+            document.addEventListener('contextmenu', e => e.preventDefault());
 
-    function toast(msg, type) {
-        type = type || 'info';
-        const c = document.getElementById('toast-container');
-        const d = document.createElement('div');
-        d.className = 'toast ' + (type || 'info');
-        d.innerHTML = '<span>' + (type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️') + '</span> ' + msg;
-        c.appendChild(d);
-        setTimeout(() => d.remove(), 4000);
-    }
-
-    function showSection(name) {
-        document.querySelectorAll('#dashboard-content .section').forEach(s => s.classList.remove('active'));
-        const target = document.getElementById('section-' + name);
-        if (target) target.classList.add('active');
-        document.querySelectorAll('.sidebar nav a').forEach(l => l.classList.remove('active'));
-        const link = document.querySelector('.sidebar nav a[data-section="' + name + '"]');
-        if (link) link.classList.add('active');
-    }
-
-    document.querySelectorAll('.sidebar nav a[data-section]').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            showSection(this.getAttribute('data-section'));
-        });
-    });
-
-    async function generateHWID() {
-        const c = [navigator.userAgent, navigator.language, screen.colorDepth, new Date().getTimezoneOffset(), navigator.hardwareConcurrency || 1].join('|');
-        const enc = new TextEncoder().encode(c);
-        const hash = await crypto.subtle.digest('SHA-256', enc);
-        return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    async function activate() {
-        const code = document.getElementById('key-input').value.trim().toUpperCase();
-        const statusEl = document.getElementById('activation-status');
-        if (!code) { statusEl.innerHTML = '<span style="color:#dc2626;">أدخل المفتاح</span>'; return; }
-        statusEl.innerHTML = '<span style="color:#fbbf24;">⏳ جاري التفعيل...</span>';
-        try {
-            const hwid = await generateHWID();
-            const res = await fetch('/api/activate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: code, hwid: hwid })
+            // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+            document.addEventListener('keydown', e => {
+                if (e.key === 'F12' ||
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+                    (e.ctrlKey && e.key === 'U') ||
+                    (e.ctrlKey && e.shiftKey && e.key === 'C')) {
+                    e.preventDefault();
+                    return false;
+                }
             });
-            const data = await res.json();
-            if (data.success) {
-                currentKey = data.key;
-                document.getElementById('activation-screen').classList.remove('active');
-                document.getElementById('dashboard-content').classList.add('active');
-                document.getElementById('main-sidebar').classList.add('show');
-                showSection('webhook');
-                toast('مرحباً ' + (data.key.clientName || 'بك') + '!', 'success');
-            } else {
-                statusEl.innerHTML = '<span style="color:#dc2626;">❌ ' + (data.error || 'خطأ') + '</span>';
+
+            // Clear Console periodically
+            setInterval(() => {
+                console.clear();
+                console.log('%c⚠️ FEEL STORE - Secure Console', 'color: #6F6E9E; font-size: 20px;');
+            }, 3000);
+
+            // Override console methods
+            const noop = () => {};
+            const originalConsole = { ...console };
+            console.log = function(...args) {
+                const filtered = args.map(arg => {
+                    if (typeof arg === 'string') {
+                        return arg.replace(/[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{38,}/g, '[HIDDEN]');
+                    }
+                    return arg;
+                });
+                originalConsole.log.apply(console, filtered);
+            };
+        })();
+
+        // ========== PARTICLES SYSTEM ==========
+        const particlesCanvas = document.getElementById('particles-canvas');
+        const starsCanvas = document.getElementById('stars-canvas');
+        const pCtx = particlesCanvas.getContext('2d');
+        const sCtx = starsCanvas.getContext('2d');
+
+        function resizeCanvases() {
+            particlesCanvas.width = starsCanvas.width = window.innerWidth;
+            particlesCanvas.height = starsCanvas.height = window.innerHeight;
+        }
+        resizeCanvases();
+        window.addEventListener('resize', resizeCanvases);
+
+        // Floating particles
+        const particles = Array.from({ length: 80 }, () => ({
+            x: Math.random() * particlesCanvas.width,
+            y: Math.random() * particlesCanvas.height,
+            size: Math.random() * 3 + 1,
+            speedX: (Math.random() - 0.5) * 1.5,
+            speedY: (Math.random() - 0.5) * 1.5,
+            opacity: Math.random() * 0.5 + 0.1,
+            color: Math.random() > 0.5 ? '#6F6E9E' : '#8B8AD0'
+        }));
+
+        // Stars background
+        const stars = Array.from({ length: 200 }, () => ({
+            x: Math.random() * starsCanvas.width,
+            y: Math.random() * starsCanvas.height,
+            size: Math.random() * 2,
+            opacity: Math.random(),
+            twinkleSpeed: Math.random() * 0.02 + 0.005,
+            twinkleDir: Math.random() > 0.5 ? 1 : -1
+        }));
+
+        function animateParticles() {
+            pCtx.clearRect(0, 0, particlesCanvas.width, particlesCanvas.height);
+
+            particles.forEach((p, i) => {
+                p.x += p.speedX;
+                p.y += p.speedY;
+
+                if (p.x < 0) p.x = particlesCanvas.width;
+                if (p.x > particlesCanvas.width) p.x = 0;
+                if (p.y < 0) p.y = particlesCanvas.height;
+                if (p.y > particlesCanvas.height) p.y = 0;
+
+                // Draw particle with glow
+                pCtx.shadowBlur = 15;
+                pCtx.shadowColor = p.color;
+                pCtx.fillStyle = p.color;
+                pCtx.globalAlpha = p.opacity;
+                pCtx.beginPath();
+                pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                pCtx.fill();
+
+                // Connections
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = p.x - particles[j].x;
+                    const dy = p.y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 150) {
+                        pCtx.shadowBlur = 0;
+                        pCtx.strokeStyle = `rgba(111,110,158,${0.08 * (1 - dist / 150)})`;
+                        pCtx.lineWidth = 0.5;
+                        pCtx.beginPath();
+                        pCtx.moveTo(p.x, p.y);
+                        pCtx.lineTo(particles[j].x, particles[j].y);
+                        pCtx.stroke();
+                    }
+                }
+            });
+
+            pCtx.globalAlpha = 1;
+            pCtx.shadowBlur = 0;
+        }
+
+        function animateStars() {
+            sCtx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
+
+            stars.forEach(s => {
+                s.opacity += s.twinkleSpeed * s.twinkleDir;
+                if (s.opacity >= 1) s.twinkleDir = -1;
+                if (s.opacity <= 0.1) s.twinkleDir = 1;
+
+                sCtx.fillStyle = `rgba(255,255,255,${s.opacity})`;
+                sCtx.beginPath();
+                sCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                sCtx.fill();
+            });
+        }
+
+        function animateAll() {
+            animateParticles();
+            animateStars();
+            requestAnimationFrame(animateAll);
+        }
+        animateAll();
+
+        // ========== TOAST SYSTEM ==========
+        function toast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const div = document.createElement('div');
+            div.className = `toast ${type}`;
+            const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+            div.innerHTML = `<span style="font-size:20px;">${icons[type] || 'ℹ️'}</span> ${msg}`;
+            container.appendChild(div);
+            setTimeout(() => {
+                div.style.opacity = '0';
+                div.style.transition = 'opacity 0.5s';
+                setTimeout(() => div.remove(), 500);
+            }, 3500);
+        }
+
+        // ========== CONSOLE HELPERS ==========
+        function getConsoleBox(id) {
+            const box = document.getElementById(id);
+            if (box) box.style.display = 'block';
+            return box;
+        }
+
+        function logToConsole(boxId, linesId, msg, type = 'info') {
+            const box = getConsoleBox(boxId);
+            if (!box) return;
+            const lines = document.getElementById(linesId);
+            if (!lines) return;
+            const time = new Date().toLocaleTimeString();
+            const colors = { info: '#B0B0B2', success: '#16a34a', error: '#dc2626', gift: '#6F6E9E', warn: '#fbbf24' };
+            const color = colors[type] || '#B0B0B2';
+            const entry = document.createElement('div');
+            entry.className = 'console-line';
+            entry.style.color = color;
+            entry.textContent = `[${time}] ${msg}`;
+            lines.appendChild(entry);
+            box.scrollTop = box.scrollHeight;
+            if (lines.children.length > 100) lines.removeChild(lines.firstChild);
+        }
+
+        function clearConsole(boxId, linesId) {
+            const lines = document.getElementById(linesId);
+            if (lines) lines.innerHTML = '';
+        }
+
+        // ========== NAVIGATION ==========
+        function showSection(name) {
+            document.querySelectorAll('#dashboard-content > .section').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(`section-${name}`);
+            if (target) target.classList.add('active');
+            document.querySelectorAll('.sidebar nav a').forEach(l => l.classList.remove('active'));
+            const link = document.querySelector(`.sidebar nav a[data-section="${name}"]`);
+            if (link) link.classList.add('active');
+            if (name === 'stats') loadStats();
+            if (name === 'logs') loadLogs();
+        }
+
+        document.querySelectorAll('.sidebar nav a[data-section]').forEach(link => {
+            link.addEventListener('click', () => showSection(link.dataset.section));
+        });
+
+        // ========== ACTIVATION SYSTEM ==========
+        async function generateHWID() {
+            const components = [
+                navigator.userAgent,
+                navigator.language,
+                screen.colorDepth,
+                new Date().getTimezoneOffset(),
+                navigator.hardwareConcurrency || 1,
+                screen.width + 'x' + screen.height
+            ].join('|');
+            const enc = new TextEncoder().encode(components);
+            const hash = await crypto.subtle.digest('SHA-256', enc);
+            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function activateSystem() {
+            const code = document.getElementById('key-input').value.trim().toUpperCase();
+            const rememberMe = document.getElementById('remember-me').checked;
+            const statusEl = document.getElementById('activation-status');
+
+            if (!code) {
+                statusEl.innerHTML = '<span style="color:#dc2626;">الرجاء إدخال مفتاح التفعيل</span>';
+                return;
             }
-        } catch(e) {
-            statusEl.innerHTML = '<span style="color:#dc2626;">خطأ في الاتصال</span>';
+
+            statusEl.innerHTML = '<span style="color:#fbbf24;">⏳ جاري التفعيل...</span>';
+            const hwid = await generateHWID();
+
+            try {
+                const res = await fetch('/api/activate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, hwid })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    if (rememberMe) {
+                        localStorage.setItem('feel_key', code);
+                        localStorage.setItem('feel_hwid', hwid);
+                    }
+                    document.getElementById('activation-screen').classList.remove('active');
+                    document.getElementById('dashboard-content').classList.add('active');
+                    document.getElementById('main-sidebar').classList.add('show');
+                    showSection('webhook');
+                    toast(`✅ مرحباً ${data.key?.clientName || 'بك'}! تم التفعيل بنجاح`, 'success');
+                } else {
+                    const errors = {
+                        'invalid': 'المفتاح غير صالح',
+                        'expired': 'انتهت صلاحية المفتاح',
+                        'used': 'المفتاح مستخدم على جهاز آخر',
+                        'blacklisted': 'الجهاز محظور من النظام'
+                    };
+                    statusEl.innerHTML =
+                        `<span style="color:#dc2626;">❌ ${errors[data.error] || data.error || 'خطأ في التفعيل'}</span>`;
+                }
+            } catch (e) {
+                statusEl.innerHTML = '<span style="color:#dc2626;">❌ خطأ في الاتصال بالسيرفر</span>';
+            }
         }
-    }
 
-    // 2FA
-    function require2FA(action) {
-        pendingAction = action;
-        document.getElementById('twofa-input').value = '';
-        document.getElementById('twofa-error').innerText = '';
-        document.getElementById('twofaModal').classList.add('show');
-        setTimeout(() => document.getElementById('twofa-input').focus(), 300);
-    }
+        // Auto-activation
+        window.addEventListener('load', async () => {
+            const savedKey = localStorage.getItem('feel_key');
+            if (savedKey) {
+                document.getElementById('key-input').value = savedKey;
+                document.getElementById('remember-me').checked = true;
+                await activateSystem();
+            }
+        });
 
-    document.getElementById('twofa-confirm').onclick = function() {
-        const entered = document.getElementById('twofa-input').value.trim().toUpperCase();
-        if (entered === (currentKey && currentKey.code)) {
-            document.getElementById('twofaModal').classList.remove('show');
-            if (pendingAction) pendingAction();
-            pendingAction = null;
-        } else {
-            document.getElementById('twofa-error').innerText = '❌ مفتاح خاطئ!';
+        // Enter key to activate
+        document.getElementById('key-input')?.addEventListener('keypress', e => {
+            if (e.key === 'Enter') activateSystem();
+        });
+
+        // ========== WEBHOOK FUNCTIONS ==========
+        async function checkWebhook() {
+            const url = document.getElementById('wh-url').value.trim();
+            if (!url) return toast('الرجاء إدخال رابط الويبهوك', 'error');
+            logToConsole('console-webhook', null, `🔍 فحص الويبهوك: ${url.substring(0, 50)}...`, 'info');
+            try {
+                const res = await fetch('/api/webhook/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ webhook: url })
+                });
+                const data = await res.json();
+                if (data.valid) {
+                    document.getElementById('wh-info').innerHTML =
+                        `<span class="badge badge-success">✅ صالح</span> الاسم: ${data.data.name}`;
+                    logToConsole('console-webhook', null, `✅ ويبهوك صالح: ${data.data.name}`, 'success');
+                } else {
+                    document.getElementById('wh-info').innerHTML =
+                        `<span class="badge badge-error">❌ ${data.error}</span>`;
+                    logToConsole('console-webhook', null, `❌ ويبهوك غير صالح: ${data.error}`, 'error');
+                }
+            } catch (e) {
+                logToConsole('console-webhook', null, `خطأ: ${e.message}`, 'error');
+            }
         }
-    };
 
-    document.getElementById('twofa-cancel').onclick = function() {
-        document.getElementById('twofaModal').classList.remove('show');
-        pendingAction = null;
-    };
+        async function sendWebhook() {
+            const url = document.getElementById('wh-url').value.trim();
+            let content = document.getElementById('wh-content').value;
+            const everyone = document.getElementById('wh-everyone')?.checked;
+            if (!url) return toast('الرجاء إدخال رابط الويبهوك', 'error');
+            if (!content) return toast('الرجاء كتابة رسالة', 'error');
+            if (everyone) content = '@everyone ' + content;
+            logToConsole('console-webhook', null, '🚀 إرسال رسالة...', 'info');
+            try {
+                const res = await fetch('/api/webhook/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ webhook: url, content })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('wh-result').innerHTML = '<span class="badge badge-success">✅ تم الإرسال!</span>';
+                    toast('تم إرسال الرسالة!', 'success');
+                    logToConsole('console-webhook', null, '✅ تم الإرسال بنجاح', 'success');
+                } else {
+                    document.getElementById('wh-result').innerHTML =
+                        `<span class="badge badge-error">❌ ${data.error}</span>`;
+                    logToConsole('console-webhook', null, `❌ فشل: ${data.error}`, 'error');
+                }
+            } catch (e) {
+                logToConsole('console-webhook', null, `خطأ: ${e.message}`, 'error');
+            }
+        }
 
-    // Tools
-    function sendWebhook() { require2FA(async () => { toast('تم الإرسال', 'success'); }); }
-    function sendEmbed() { require2FA(async () => { toast('تم إرسال الامبد', 'success'); }); }
-    function startSpam() { require2FA(async () => { toast('بدأ السبام', 'info'); }); }
-    function changeProfile() { require2FA(async () => { toast('تم تحديث المظهر', 'success'); }); }
-    function sendMulti() { require2FA(async () => { toast('تم الإرسال', 'success'); }); }
-    function startScheduler() { require2FA(async () => { toast('تم الجدولة', 'info'); }); }
-    function deleteMessage() { require2FA(async () => { toast('تم الحذف', 'success'); }); }
-    function sendJSON() { require2FA(async () => { toast('تم JSON', 'success'); }); }
-    function cloneServer() { require2FA(async () => { toast('بدأ النسخ', 'info'); }); }
-    function startBooster() { require2FA(async () => { toast('بدأ البوست', 'info'); }); }
-    function startNitroGen() { require2FA(async () => { toast('بدأ نيترو', 'info'); }); }
-    function startNitroPro() { require2FA(async () => { toast('بدأ نيترو برو', 'info'); }); }
-    function startNitroPromo() { require2FA(async () => { toast('بدأ برومو', 'info'); }); }
-    function tokenLogin() { require2FA(async () => { toast('جاري الدخول', 'info'); }); }
-    function botLogin() { require2FA(async () => { toast('جاري التحميل', 'info'); }); }
-    function startSniper() { require2FA(async () => { toast('بدأ الصيد', 'info'); }); }
-</script>
+        function saveWebhook() {
+            const url = document.getElementById('wh-url').value.trim();
+            if (url) {
+                let webhooks = JSON.parse(localStorage.getItem('feel_webhooks') || '[]');
+                if (!webhooks.includes(url)) {
+                    webhooks.push(url);
+                    localStorage.setItem('feel_webhooks', JSON.stringify(webhooks));
+                    toast('تم حفظ الويبهوك!', 'success');
+                }
+            }
+        }
+
+        // ========== EMBED FUNCTIONS ==========
+        function updateEmbedPreview() {
+            document.getElementById('preview-title').textContent = document.getElementById('emb-title').value || 'العنوان هنا';
+            document.getElementById('preview-desc').textContent = document.getElementById('emb-desc').value || 'الوصف هنا';
+            document.getElementById('preview-footer').textContent = document.getElementById('emb-footer').value || 'التذييل';
+            const color = document.getElementById('emb-color').value;
+            document.getElementById('embed-preview').style.borderRightColor = color;
+            const img = document.getElementById('emb-image').value;
+            document.getElementById('preview-image').style.display = img ? 'block' : 'none';
+            if (img) document.getElementById('preview-image').src = img;
+        }
+        ['emb-title', 'emb-desc', 'emb-footer', 'emb-color', 'emb-image'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', updateEmbedPreview);
+        });
+        updateEmbedPreview();
+
+        async function sendEmbed() {
+            const url = document.getElementById('emb-url').value.trim();
+            if (!url) return toast('الرجاء إدخال رابط الويبهوك', 'error');
+            const embed = {
+                title: document.getElementById('emb-title').value,
+                description: document.getElementById('emb-desc').value,
+                color: parseInt(document.getElementById('emb-color').value.replace('#', ''), 16)
+            };
+            const image = document.getElementById('emb-image').value;
+            const footer = document.getElementById('emb-footer').value;
+            if (image) embed.image = { url: image };
+            if (footer) embed.footer = { text: footer };
+            try {
+                const res = await fetch('/api/webhook/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ webhook: url, embeds: [embed] })
+                });
+                const data = await res.json();
+                document.getElementById('emb-result').innerHTML = data.success ?
+                    '<span class="badge badge-success">✅ تم إرسال الامبد!</span>' :
+                    `<span class="badge badge-error">❌ ${data.error}</span>`;
+                if (data.success) toast('تم إرسال الامبد!', 'success');
+            } catch (e) {
+                document.getElementById('emb-result').innerHTML = '<span class="badge badge-error">خطأ</span>';
+            }
+        }
+
+        // ========== SPAM FUNCTIONS ==========
+        let spamRunning = false;
+        async function startSpam() {
+            const url = document.getElementById('spam-url').value.trim();
+            const msg = document.getElementById('spam-msg').value;
+            const amount = parseInt(document.getElementById('spam-amount').value) || 10;
+            const delay = parseInt(document.getElementById('spam-delay').value) || 500;
+            if (!url) return toast('الرجاء إدخال رابط الويبهوك', 'error');
+            spamRunning = true;
+            document.getElementById('spam-start').style.display = 'none';
+            document.getElementById('spam-stop').style.display = 'inline-flex';
+            clearConsole('console-spam', null);
+            logToConsole('console-spam', null, `💣 بدء السبام: ${amount} رسالة`, 'info');
+            for (let i = 0; i < amount && spamRunning; i++) {
+                try {
+                    await fetch('/api/webhook/send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ webhook: url, content: msg })
+                    });
+                    logToConsole('console-spam', null, `✅ رسالة ${i + 1}/${amount}`, 'success');
+                } catch (e) {
+                    logToConsole('console-spam', null, `❌ فشل ${i + 1}`, 'error');
+                }
+                document.getElementById('spam-status').textContent = `تم الإرسال: ${i + 1}/${amount}`;
+                document.getElementById('spam-progress').style.width = `${((i + 1) / amount) * 100}%`;
+                if (delay > 0 && i < amount - 1) await new Promise(r => setTimeout(r, delay));
+            }
+            stopSpam();
+            toast('اكتمل السبام!', 'success');
+        }
+
+        function stopSpam() {
+            spamRunning = false;
+            document.getElementById('spam-start').style.display = 'inline-flex';
+            document.getElementById('spam-stop').style.display = 'none';
+            logToConsole('console-spam', null, '⏹ تم إيقاف السبام', 'warn');
+        }
+
+        // ========== PROFILE CHANGER ==========
+        async function changeProfile() {
+            const url = document.getElementById('prof-url').value.trim();
+            const name = document.getElementById('prof-name').value;
+            const avatar = document.getElementById('prof-avatar').value;
+            if (!url) return toast('الرجاء إدخال رابط الويبهوك', 'error');
+            logToConsole('console-profile', null, '👤 تحديث المظهر...', 'info');
+            try {
+                const res = await fetch('/api/webhook/modify', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ webhook: url, name, avatar })
+                });
+                const data = await res.json();
+                document.getElementById('prof-result').innerHTML = data.success ?
+                    '<span class="badge badge-success">✅ تم التحديث!</span>' :
+                    `<span class="badge badge-error">❌ ${data.error}</span>`;
+                if (data.success) logToConsole('console-profile', null, '✅ تم تحديث المظهر', 'success');
+            } catch (e) {
+                logToConsole('console-profile', null, `خطأ: ${e.message}`, 'error');
+            }
+        }
+
+        // ========== MULTI WEBHOOKS ==========
+        async function sendMulti() {
+            const urls = document.getElementById('multi-urls').value.trim().split('\n').filter(u => u.trim());
+            const msg = document.getElementById('multi-msg').value;
+            if (urls.length === 0) return toast('الرجاء إدخال روابط الويبهوكات', 'error');
+            clearConsole('console-multi', null);
+            logToConsole('console-multi', null, `📡 إرسال لـ ${urls.length} ويبهوك`, 'info');
+            let sent = 0;
+            for (const url of urls) {
+                try {
+                    await fetch('/api/webhook/send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ webhook: url.trim(), content: msg })
+                    });
+                    sent++;
+                    logToConsole('console-multi', null, `✅ ${url.trim().substring(0, 40)}...`, 'success');
+                } catch (e) {
+                    logToConsole('console-multi', null, `❌ فشل`, 'error');
+                }
+            }
+            document.getElementById('multi-result').innerHTML =
+                `<span class="badge badge-success">✅ تم الإرسال لـ ${sent}/${urls.length}</span>`;
+            toast(`تم الإرسال لـ ${sent} ويبهوك!`, 'success');
+        }
+
+        // ========== SCHEDULER ==========
+        let schedulerRunning = false;
+        async function startScheduler() {
+            const url = document.getElementById('sched-url').value.trim();
+            const msg = document.getElementById('sched-msg').value;
+            const delay = parseInt(document.getElementById('sched-delay').value) || 5;
+            const repeat = parseInt(document.getElementById('sched-repeat').value) || 1;
+            if (!url) return toast('الرجاء إدخال رابط الويبهوك', 'error');
+            schedulerRunning = true;
+            document.getElementById('sched-start').style.display = 'none';
+            document.getElementById('sched-stop').style.display = 'inline-flex';
+            clearConsole('console-scheduler', null);
+            logToConsole('console-scheduler', null, `⏰ جدولة: كل ${delay}s × ${repeat}`, 'info');
+            for (let i = 0; i < repeat && schedulerRunning; i++) {
+                document.getElementById('sched-status').textContent =
+                    `⏳ انتظار ${delay} ثانية... (${i + 1}/${repeat})`;
+                logToConsole('console-scheduler', null, `⏳ انتظار ${delay}s`, 'info');
+                await new Promise(r => setTimeout(r, delay * 1000));
+                if (!schedulerRunning) break;
+                try {
+                    await fetch('/api/webhook/send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ webhook: url, content: msg })
+                    });
+                    logToConsole('console-scheduler', null, `✅ إرسال ${i + 1}/${repeat}`, 'success');
+                } catch (e) {
+                    logToConsole('console-scheduler', null, `❌ فشل`, 'error');
+                }
+                document.getElementById('sched-status').textContent = `✅ تم الإرسال ${i + 1}/${repeat}`;
+            }
+            stopScheduler();
+            toast('اكتملت الجدولة!', 'success');
+        }
+
+        function stopScheduler() {
+            schedulerRunning = false;
+            document.getElementById('sched-start').style.display = 'inline-flex';
+            document.getElementById('sched-stop').style.display = 'none';
+            logToConsole('console-scheduler', null, '⏹ توقفت', 'warn');
+        }
+
+        // ========== DELETER ==========
+        async function deleteMessage() {
+            const url = document.getElementById('del-url').value.trim();
+            const msgId = document.getElementById('del-msgid').value.trim();
+            if (!url || !msgId) return toast('الرجاء إدخال الرابط ومعرف الرسالة', 'error');
+            logToConsole('console-deleter', null, `🗑️ حذف رسالة ${msgId}`, 'info');
+            try {
+                const res = await fetch('/api/webhook/delete', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ webhook: `${url}/messages/${msgId}` })
+                });
+                const data = await res.json();
+                document.getElementById('del-result').innerHTML = data.success ?
+                    '<span class="badge badge-success">✅ تم الحذف!</span>' :
+                    `<span class="badge badge-error">❌ ${data.error}</span>`;
+                if (data.success) logToConsole('console-deleter', null, '✅ تم الحذف', 'success');
+            } catch (e) {
+                logToConsole('console-deleter', null, `خطأ: ${e.message}`, 'error');
+            }
+        }
+
+        // ========== JSON SENDER ==========
+        async function sendJSON() {
+            const url = document.getElementById('json-url').value.trim();
+            const raw = document.getElementById('json-payload').value.trim();
+            if (!url || !raw) return toast('الرجاء إدخال الرابط و JSON', 'error');
+            logToConsole('console-json', null, '📝 إرسال JSON...', 'info');
+            try {
+                const payload = JSON.parse(raw);
+                const res = await fetch('/api/webhook/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ webhook: url, ...payload })
+                });
+                const data = await res.json();
+                document.getElementById('json-result').innerHTML = data.success ?
+                    '<span class="badge badge-success">✅ تم!</span>' :
+                    `<span class="badge badge-error">❌ ${data.error}</span>`;
+                if (data.success) logToConsole('console-json', null, '✅ نجاح', 'success');
+            } catch (e) {
+                document.getElementById('json-result').innerHTML =
+                    '<span class="badge badge-error">❌ JSON غير صالح</span>';
+                logToConsole('console-json', null, '❌ JSON غير صالح', 'error');
+            }
+        }
+
+        // ========== SERVER CLONER ==========
+        async function cloneServer() {
+            const token = document.getElementById('cloner-token').value.trim();
+            const source = document.getElementById('cloner-source').value.trim();
+            const target = document.getElementById('cloner-target').value.trim();
+            const deleteFirst = document.getElementById('cloner-delete-first')?.checked;
+            const options = {
+                channels: document.getElementById('cloner-channels')?.checked ?? true,
+                roles: document.getElementById('cloner-roles')?.checked ?? true,
+                deleteFirst
+            };
+            if (!token || !source || !target) return toast('الرجاء ملء جميع الحقول', 'error');
+            document.getElementById('cloner-result').innerHTML =
+                '<span class="badge badge-warning">⏳ جاري النسخ...</span>';
+            clearConsole('console-cloner', null);
+            logToConsole('console-cloner', null, '📋 بدء نسخ السيرفر...', 'info');
+            try {
+                const res = await fetch('/api/tools/server-cloner', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, source, target, options })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('cloner-result').innerHTML =
+                        '<span class="badge badge-success">✅ تم النسخ بنجاح!</span>';
+                    toast('اكتمل نسخ السيرفر!', 'success');
+                    logToConsole('console-cloner', null, '✅ اكتمل النسخ', 'success');
+                } else {
+                    document.getElementById('cloner-result').innerHTML =
+                        `<span class="badge badge-error">❌ ${data.error}</span>`;
+                    logToConsole('console-cloner', null, `❌ ${data.error}`, 'error');
+                }
+            } catch (e) {
+                logToConsole('console-cloner', null, `خطأ: ${e.message}`, 'error');
+            }
+        }
+
+        // ========== BOOSTER ==========
+        async function startBooster() {
+            const tokensText = document.getElementById('boost-tokens').value.trim();
+            const inviteInput = document.getElementById('boost-invite').value.trim();
+            if (!tokensText) return toast('الرجاء إدخال التوكنات', 'error');
+            if (!inviteInput) return toast('الرجاء إدخال رابط السيرفر', 'error');
+            const tokens = tokensText.split('\n').filter(t => t.trim());
+            document.getElementById('boost-result').innerHTML =
+                '<span style="color:#fbbf24;">⏳ جاري ضرب البوستات...</span>';
+            document.getElementById('boost-progress').style.width = '0%';
+            clearConsole('console-booster', null);
+            logToConsole('console-booster', null, `🚀 بدء بوست: ${tokens.length} حساب`, 'info');
+            let successCount = 0,
+                failCount = 0,
+                noNitroCount = 0;
+            let results = [];
+            for (let i = 0; i < tokens.length; i++) {
+                const token = tokens[i].trim();
+                try {
+                    const res = await fetch('/api/tools/booster', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token, invite: inviteInput })
+                    });
+                    const data = await res.json();
+                    if (data.boosted) {
+                        successCount++;
+                        results.push({ token: token.substring(0, 20) + '...', status: '✅ بوست' });
+                        logToConsole('console-booster', null, `✅ بوست: ${token.substring(0, 15)}...`, 'success');
+                    } else if (data.noNitro) {
+                        noNitroCount++;
+                        results.push({ token: token.substring(0, 20) + '...', status: '💎 بدون نيترو' });
+                        logToConsole('console-booster', null, `💎 بدون نيترو`, 'warn');
+                    } else {
+                        failCount++;
+                        results.push({ token: token.substring(0, 20) + '...', status: '❌ فشل' });
+                        logToConsole('console-booster', null, `❌ فشل`, 'error');
+                    }
+                } catch (e) {
+                    failCount++;
+                    logToConsole('console-booster', null, `❌ خطأ`, 'error');
+                }
+                document.getElementById('boost-progress').style.width = `${((i + 1) / tokens.length) * 100}%`;
+                document.getElementById('boost-result').innerHTML = `
+                    <div style="margin-bottom:10px;">⏳ ${i+1}/${tokens.length} | ✅ ${successCount} | 💎 ${noNitroCount} | ❌ ${failCount}</div>
+                    ${results.slice(-5).map(r => `<div style="font-size:11px;color:#B0B0B2;">${r.token}: ${r.status}</div>`).join('')}
+                `;
+                await new Promise(r => setTimeout(r, 800));
+            }
+            document.getElementById('boost-result').innerHTML = `
+                <div style="background:#010102;border:2px solid #6F6E9E;border-radius:12px;padding:15px;text-align:center;">
+                    <h3 style="color:#6F6E9E;">✅ اكتملت</h3>
+                    <div style="display:flex;justify-content:center;gap:30px;">
+                        <div><span style="font-size:28px;color:#16a34a;">${successCount}</span><br>بوست</div>
+                        <div><span style="font-size:28px;color:#fbbf24;">${noNitroCount}</span><br>بدون نيترو</div>
+                        <div><span style="font-size:28px;color:#dc2626;">${failCount}</span><br>فشل</div>
+                    </div>
+                </div>`;
+            document.getElementById('boost-progress').style.width = '100%';
+        }
+
+        // ========== NITRO GEN ==========
+        let nitroGenRunning = false,
+            nitroGenFound = [],
+            nitroGenChecked = 0;
+
+        async function startNitroGen() {
+            const webhook = document.getElementById('nitrogen-webhook').value.trim();
+            const sendToWebhook = document.getElementById('nitrogen-send-webhook')?.checked;
+            const count = parseInt(document.getElementById('nitrogen-count').value) || 100;
+            const threads = parseInt(document.getElementById('nitrogen-threads').value) || 5;
+            const useWebhook = sendToWebhook && webhook;
+
+            nitroGenRunning = true;
+            nitroGenFound = [];
+            nitroGenChecked = 0;
+            document.getElementById('nitrogen-start').style.display = 'none';
+            document.getElementById('nitrogen-stop').style.display = 'inline-flex';
+            document.getElementById('nitrogen-result').innerHTML = '';
+            document.getElementById('nitrogen-valid').innerHTML = '';
+            document.getElementById('nitrogen-progress').style.width = '0%';
+            clearConsole('console-nitrogen', 'nitrogen-console-lines');
+
+            logToConsole('console-nitrogen', 'nitrogen-console-lines', '🚀 بدء توليد نيترو عادي', 'info');
+            if (useWebhook) logToConsole('console-nitrogen', 'nitrogen-console-lines', '📨 الويبهوك مفعل', 'info');
+            else logToConsole('console-nitrogen', 'nitrogen-console-lines', '🖥 كونسول فقط', 'info');
+
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+            function gen() {
+                let c = '';
+                for (let i = 0; i < 24; i++) c += chars[Math.floor(Math.random() * chars.length)];
+                return c;
+            }
+
+            async function process() {
+                if (!nitroGenRunning || nitroGenChecked >= count) { stopNitroGen(); return; }
+                const code = gen();
+                const url = `https://discord.gift/${code}`;
+                nitroGenChecked++;
+                logToConsole('console-nitrogen', 'nitrogen-console-lines', `🎁 فحص: ${url}`, 'gift');
+                try {
+                    const r = await fetch(
+                        `https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`
+                        );
+                    if (r.status === 200) {
+                        const d = await r.json();
+                        if (d.uses !== undefined && d.uses < (d.max_uses || 1)) {
+                            nitroGenFound.push(code);
+                            logToConsole('console-nitrogen', 'nitrogen-console-lines', `✅ شغال: ${url}`,
+                                'success');
+                            document.getElementById('nitrogen-valid').innerHTML +=
+                                `<a href="${url}" target="_blank" class="nitro-valid-link">🎁 ${url}</a>`;
+                            if (useWebhook) {
+                                await fetch('/api/webhook/send', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ webhook, content: `✅ **نيترو شغال:** ${url}` })
+                                }).catch(() => {});
+                            }
+                        }
+                    }
+                } catch (e) {
+                    logToConsole('console-nitrogen', 'nitrogen-console-lines', `❌ خطأ: ${e.message}`, 'error');
+                }
+                document.getElementById('nitrogen-result').textContent =
+                    `🔍 ${nitroGenChecked}/${count} | 🎁 وجد: ${nitroGenFound.length}`;
+                document.getElementById('nitrogen-progress').style.width =
+                    `${(nitroGenChecked / count) * 100}%`;
+                setTimeout(process, 50);
+            }
+            for (let i = 0; i < threads; i++) setTimeout(process, i * 100);
+        }
+
+        function stopNitroGen() {
+            nitroGenRunning = false;
+            document.getElementById('nitrogen-start').style.display = 'inline-flex';
+            document.getElementById('nitrogen-stop').style.display = 'none';
+            logToConsole('console-nitrogen', 'nitrogen-console-lines',
+                `⏹ توقف | وجد ${nitroGenFound.length} كود`, 'warn');
+            if (nitroGenFound.length > 0) toast(`🎁 وجد ${nitroGenFound.length} كود شغال!`, 'success');
+        }
+
+        // ========== NITRO PRO ==========
+        let nitroProRunning = false,
+            nitroProFound = [],
+            nitroProChecked = 0;
+
+        async function startNitroPro() {
+            const webhook = document.getElementById('nitropro-webhook').value.trim();
+            const sendToWebhook = document.getElementById('nitropro-send-webhook')?.checked;
+            const count = parseInt(document.getElementById('nitropro-count').value) || 500;
+            const threads = parseInt(document.getElementById('nitropro-threads').value) || 10;
+            const useWebhook = sendToWebhook && webhook;
+
+            nitroProRunning = true;
+            nitroProFound = [];
+            nitroProChecked = 0;
+            document.getElementById('nitropro-start').style.display = 'none';
+            document.getElementById('nitropro-stop').style.display = 'inline-flex';
+            document.getElementById('nitropro-result').innerHTML = '';
+            document.getElementById('nitropro-valid').innerHTML = '';
+            document.getElementById('nitropro-progress').style.width = '0%';
+            clearConsole('console-nitropro', 'nitropro-console-lines');
+            logToConsole('console-nitropro', 'nitropro-console-lines', '💎 بدء نيترو برو', 'info');
+
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+            function gen() {
+                let c = '';
+                for (let i = 0; i < 24; i++) c += chars[Math.floor(Math.random() * chars.length)];
+                return c;
+            }
+
+            async function process() {
+                if (!nitroProRunning || nitroProChecked >= count) { stopNitroPro(); return; }
+                const code = gen();
+                const url = `https://discord.gift/${code}`;
+                nitroProChecked++;
+                logToConsole('console-nitropro', 'nitropro-console-lines', `💎 فحص: ${url}`, 'gift');
+                try {
+                    const r = await fetch(
+                        `https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`
+                        );
+                    if (r.status === 200) {
+                        const d = await r.json();
+                        if (d.uses !== undefined && d.uses < (d.max_uses || 1)) {
+                            nitroProFound.push(code);
+                            logToConsole('console-nitropro', 'nitropro-console-lines', `✅ شغال: ${url}`,
+                                'success');
+                            document.getElementById('nitropro-valid').innerHTML +=
+                                `<a href="${url}" target="_blank" class="nitro-valid-link">💎 ${url}</a>`;
+                            if (useWebhook) {
+                                await fetch('/api/webhook/send', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ webhook, content: `💎 **برو شغال:** ${url}` })
+                                }).catch(() => {});
+                            }
+                        }
+                    }
+                } catch (e) {
+                    logToConsole('console-nitropro', 'nitropro-console-lines', `❌ خطأ: ${e.message}`, 'error');
+                }
+                document.getElementById('nitropro-result').textContent =
+                    `🔍 ${nitroProChecked}/${count} | 💎 وجد: ${nitroProFound.length}`;
+                document.getElementById('nitropro-progress').style.width =
+                    `${(nitroProChecked / count) * 100}%`;
+                setTimeout(process, 50);
+            }
+            for (let i = 0; i < threads; i++) setTimeout(process, i * 100);
+        }
+
+        function stopNitroPro() {
+            nitroProRunning = false;
+            document.getElementById('nitropro-start').style.display = 'inline-flex';
+            document.getElementById('nitropro-stop').style.display = 'none';
+            logToConsole('console-nitropro', 'nitropro-console-lines',
+                `⏹ توقف | وجد ${nitroProFound.length} كود`, 'warn');
+            if (nitroProFound.length > 0) toast(`💎 وجد ${nitroProFound.length} كود برو!`, 'success');
+        }
+
+        // ========== NITRO PROMO ==========
+        let nitroPromoRunning = false,
+            nitroPromoFound = [],
+            nitroPromoChecked = 0;
+
+        async function startNitroPromo() {
+            const webhook = document.getElementById('nitropromo-webhook').value.trim();
+            const sendToWebhook = document.getElementById('nitropromo-send-webhook')?.checked;
+            const count = parseInt(document.getElementById('nitropromo-count').value) || 300;
+            const threads = parseInt(document.getElementById('nitropromo-threads').value) || 8;
+            const useWebhook = sendToWebhook && webhook;
+
+            nitroPromoRunning = true;
+            nitroPromoFound = [];
+            nitroPromoChecked = 0;
+            document.getElementById('nitropromo-start').style.display = 'none';
+            document.getElementById('nitropromo-stop').style.display = 'inline-flex';
+            document.getElementById('nitropromo-result').innerHTML = '';
+            document.getElementById('nitropromo-valid').innerHTML = '';
+            document.getElementById('nitropromo-progress').style.width = '0%';
+            clearConsole('console-nitropromo', 'nitropromo-console-lines');
+            logToConsole('console-nitropromo', 'nitropromo-console-lines', '👑 بدء برومو 3 شهور', 'info');
+
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+            function gen() {
+                let c = '';
+                for (let i = 0; i < 24; i++) c += chars[Math.floor(Math.random() * chars.length)];
+                return c;
+            }
+
+            async function process() {
+                if (!nitroPromoRunning || nitroPromoChecked >= count) { stopNitroPromo(); return; }
+                const code = gen();
+                const url = `https://discord.gift/${code}`;
+                nitroPromoChecked++;
+                logToConsole('console-nitropromo', 'nitropromo-console-lines', `👑 فحص: ${url}`, 'gift');
+                try {
+                    const r = await fetch(
+                        `https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`
+                        );
+                    if (r.status === 200) {
+                        const d = await r.json();
+                        if (d.uses !== undefined && d.uses < (d.max_uses || 1)) {
+                            nitroPromoFound.push(code);
+                            logToConsole('console-nitropromo', 'nitropromo-console-lines', `✅ شغال: ${url}`,
+                                'success');
+                            document.getElementById('nitropromo-valid').innerHTML +=
+                                `<a href="${url}" target="_blank" class="nitro-valid-link">👑 ${url}</a>`;
+                            if (useWebhook) {
+                                await fetch('/api/webhook/send', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ webhook, content: `👑 **برومو شغال:** ${url}` })
+                                }).catch(() => {});
+                            }
+                        }
+                    }
+                } catch (e) {
+                    logToConsole('console-nitropromo', 'nitropromo-console-lines', `❌ خطأ: ${e.message}`, 'error');
+                }
+                document.getElementById('nitropromo-result').textContent =
+                    `🔍 ${nitroPromoChecked}/${count} | 👑 وجد: ${nitroPromoFound.length}`;
+                document.getElementById('nitropromo-progress').style.width =
+                    `${(nitroPromoChecked / count) * 100}%`;
+                setTimeout(process, 50);
+            }
+            for (let i = 0; i < threads; i++) setTimeout(process, i * 100);
+        }
+
+        function stopNitroPromo() {
+            nitroPromoRunning = false;
+            document.getElementById('nitropromo-start').style.display = 'inline-flex';
+            document.getElementById('nitropromo-stop').style.display = 'none';
+            logToConsole('console-nitropromo', 'nitropromo-console-lines',
+                `⏹ توقف | وجد ${nitroPromoFound.length} كود`, 'warn');
+            if (nitroPromoFound.length > 0) toast(`👑 وجد ${nitroPromoFound.length} كود برومو!`, 'success');
+        }
+
+        // ========== NITRO CHECKER ==========
+        async function checkNitroCodes() {
+            const codesText = document.getElementById('checker-codes').value.trim();
+            const webhook = document.getElementById('checker-webhook').value.trim();
+            if (!codesText) return toast('الرجاء إدخال أكواد للفحص', 'error');
+            const codes = codesText.split('\n').map(c => {
+                c = c.trim();
+                c = c.replace('https://discord.gift/', '').replace('discord.gift/', '');
+                return c;
+            }).filter(c => c.length >= 16);
+            if (codes.length === 0) return toast('لم يتم العثور على أكواد صالحة', 'error');
+            document.getElementById('checker-result').innerHTML =
+                '<span class="badge badge-info">🔍 جاري فحص الأكواد...</span>';
+            document.getElementById('checker-valid').innerHTML = '';
+            clearConsole('console-checker', 'checker-console-lines');
+            logToConsole('console-checker', 'checker-console-lines', `🔍 فحص ${codes.length} كود`, 'info');
+            let validCount = 0,
+                invalidCount = 0;
+            for (const code of codes) {
+                const url = `https://discord.gift/${code}`;
+                try {
+                    const r = await fetch(
+                        `https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`
+                        );
+                    if (r.status === 200) {
+                        const d = await r.json();
+                        if (d.uses !== undefined && d.uses < (d.max_uses || 1)) {
+                            validCount++;
+                            document.getElementById('checker-valid').innerHTML +=
+                                `<a href="${url}" target="_blank" class="nitro-valid-link">✅ ${url}</a>`;
+                            logToConsole('console-checker', 'checker-console-lines', `✅ شغال: ${url}`,
+                                'success');
+                            if (webhook) {
+                                await fetch('/api/webhook/send', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ webhook, content: `✅ **شغال:** ${url}` })
+                                }).catch(() => {});
+                            }
+                        } else {
+                            invalidCount++;
+                            document.getElementById('checker-valid').innerHTML +=
+                                `<span class="nitro-invalid-link">❌ ${url} (مستخدم)</span>`;
+                            logToConsole('console-checker', 'checker-console-lines', `❌ مستخدم: ${url}`,
+                                'error');
+                        }
+                    } else {
+                        invalidCount++;
+                        logToConsole('console-checker', 'checker-console-lines', `❌ غير صالح: ${url}`,
+                            'error');
+                    }
+                } catch (e) {
+                    invalidCount++;
+                    logToConsole('console-checker', 'checker-console-lines', `❌ خطأ: ${e.message}`, 'error');
+                }
+                document.getElementById('checker-result').innerHTML =
+                    `<span class="badge badge-info">🔍 فحص: ✅ ${validCount} | ❌ ${invalidCount}</span>`;
+                await new Promise(r => setTimeout(r, 200));
+            }
+            toast(`✅ ${validCount} شغال | ❌ ${invalidCount} غير صالح`, 'success');
+            logToConsole('console-checker', 'checker-console-lines',
+                `✅ اكتمل: ${validCount} شغال, ${invalidCount} غير صالح`, 'success');
+        }
+
+        // ========== TOKEN LOGIN (DIRECT) ==========
+        function tokenLoginDirect() {
+            const token = document.getElementById('tokenlogin-input').value.trim();
+            if (!token) {
+                document.getElementById('tokenlogin-result').innerHTML =
+                    '<span style="color:#dc2626;">❌ الرجاء إدخال التوكن</span>';
+                return toast('الرجاء إدخال التوكن', 'error');
+            }
+            // Open Discord with token via Chrome extension method
+            const resultEl = document.getElementById('tokenlogin-result');
+            resultEl.innerHTML = `
+                <div style="background:#010102;border:1px solid var(--accent);border-radius:12px;padding:20px;text-align:center;">
+                    <div style="font-size:40px;margin-bottom:10px;">🔐</div>
+                    <h3 style="color:var(--accent);">تم تجهيز التوكن</h3>
+                    <p style="color:var(--text2);margin:10px 0;">الرجاء تحميل إضافة Token Login للمتابعة</p>
+                    <a href="https://chromewebstore.google.com/detail/discord-token-login/pdmpkpjlmnndlfdllmnekbmgjikhghjg" 
+                       target="_blank" 
+                       class="btn" 
+                       style="margin-top:10px;display:inline-block;text-decoration:none;">
+                       🛒 تحميل الإضافة من سوق كروم
+                    </a>
+                    <p style="color:var(--text2);font-size:12px;margin-top:15px;">
+                        بعد التحميل: افتح Discord في المتصفح > استخدم الإضافة > الصق التوكن
+                    </p>
+                    <button class="btn btn-sm btn-outline" onclick="navigator.clipboard.writeText('${token}').then(()=>toast('✅ تم نسخ التوكن!','success'))">
+                        📋 نسخ التوكن
+                    </button>
+                </div>`;
+            // Auto copy token
+            navigator.clipboard.writeText(token).then(() => {
+                toast('✅ تم نسخ التوكن تلقائياً!', 'success');
+            }).catch(() => {});
+            logToConsole('console-tokenlogin', null, '🔐 تم تجهيز التوكن', 'info');
+            logToConsole('console-tokenlogin', null, '📋 تم نسخ التوكن للحافظة', 'success');
+        }
+
+        // ========== BOT LOGIN ==========
+        function downloadBotClient() {
+            const link = 'https://chromewebstore.google.com/detail/discord-token-login/pdmpkpjlmnndlfdllmnekbmgjikhghjg';
+            document.getElementById('botlogin-result').innerHTML = `
+                <div style="background:#010102;border:1px solid var(--accent);border-radius:12px;padding:20px;text-align:center;">
+                    <div style="font-size:40px;">🤖</div>
+                    <h3 style="color:var(--accent);">جاري التحميل...</h3>
+                    <a href="${link}" target="_blank" class="btn" style="margin-top:10px;display:inline-block;text-decoration:none;">
+                        ⬇️ اضغط هنا إذا لم يبدأ التحميل
+                    </a>
+                </div>`;
+            window.open(link, '_blank');
+            toast('✅ تم فتح صفحة التحميل!', 'success');
+        }
+
+        // ========== USERNAME SNIPER ==========
+        let sniperRunning = false;
+        let sniperFound = [];
+
+        function toggleSniperOptions() {
+            const type = document.getElementById('sniper-type').value;
+            document.getElementById('sniper-custom').style.display = type === 'custom' ? 'block' : 'none';
+        }
+
+        async function startSniper() {
+            const token = document.getElementById('sniper-token').value.trim();
+            const type = document.getElementById('sniper-type').value;
+            const webhook = document.getElementById('sniper-webhook').value.trim();
+            const delay = parseFloat(document.getElementById('sniper-delay').value) || 0.5;
+            const maxCount = parseInt(document.getElementById('sniper-count').value) || 100;
+            if (!token) return toast('الرجاء إدخال التوكن', 'error');
+            document.getElementById('sniper-result').innerHTML = '';
+            sniperFound = [];
+            document.getElementById('sniper-result').innerHTML =
+                '<span style="color:#fbbf24;">⏳ جاري التحقق من التوكن...</span>';
+            clearConsole('console-sniper', 'sniper-console-lines');
+            logToConsole('console-sniper', 'sniper-console-lines', '🎯 بدء صيد اليوزرات', 'info');
+            try {
+                const checkRes = await fetch('https://discord.com/api/v9/users/@me', {
+                    headers: { 'Authorization': token }
+                });
+                if (checkRes.status !== 200) {
+                    document.getElementById('sniper-result').innerHTML =
+                        '<span style="color:#dc2626;">❌ التوكن غير صالح</span>';
+                    logToConsole('console-sniper', 'sniper-console-lines', '❌ توكن غير صالح', 'error');
+                    return toast('التوكن غير صالح', 'error');
+                }
+                const userData = await checkRes.json();
+                document.getElementById('sniper-result').innerHTML =
+                    `<span style="color:#16a34a;">✅ متصل: ${userData.username}</span>`;
+                logToConsole('console-sniper', 'sniper-console-lines',
+                    `✅ متصل كـ ${userData.username}`, 'success');
+            } catch (e) {
+                logToConsole('console-sniper', 'sniper-console-lines', `❌ خطأ: ${e.message}`, 'error');
+                return toast('خطأ في الاتصال', 'error');
+            }
+            sniperRunning = true;
+            document.getElementById('sniper-start').style.display = 'none';
+            document.getElementById('sniper-stop').style.display = 'inline-flex';
+            const letters = 'abcdefghijklmnopqrstuvwxyz';
+            const digits = '0123456789';
+            const punct = '._';
+            let checked = 0,
+                found = 0;
+            const headers = {
+                'Content-Type': 'application/json',
+                'Origin': 'https://discord.com',
+                'Authorization': token
+            };
+
+            function getRandomUsername() {
+                const l = letters[Math.floor(Math.random() * letters.length)];
+                const d1 = digits[Math.floor(Math.random() * digits.length)];
+                const d2 = digits[Math.floor(Math.random() * digits.length)];
+                const sep = punct[Math.floor(Math.random() * punct.length)];
+                if (type === 'semi-3') {
+                    const parts = [l, d1, d2];
+                    parts.splice(Math.floor(Math.random() * 2) + 1, 0, sep);
+                    return parts.join('');
+                } else if (type === 'semi-4') {
+                    const l2 = letters[Math.floor(Math.random() * letters.length)];
+                    const parts = [l, l2, d1, d2];
+                    parts.splice(Math.floor(Math.random() * 3) + 1, 0, sep);
+                    return parts.join('');
+                } else if (type === 'custom') {
+                    const nl = parseInt(document.getElementById('sniper-letters').value) || 2;
+                    const nn = parseInt(document.getElementById('sniper-numbers').value) || 2;
+                    let u = '';
+                    for (let i = 0; i < nl; i++) u += letters[Math.floor(Math.random() * letters.length)];
+                    for (let i = 0; i < nn; i++) u += digits[Math.floor(Math.random() * digits.length)];
+                    return u;
+                } else {
+                    const chars = letters + digits + punct;
+                    const len = Math.floor(Math.random() * 5) + 2;
+                    let u = '';
+                    for (let i = 0; i < len; i++) u += chars[Math.floor(Math.random() * chars.length)];
+                    return u;
+                }
+            }
+            while (sniperRunning && checked < maxCount) {
+                const username = getRandomUsername();
+                checked++;
+                logToConsole('console-sniper', 'sniper-console-lines', `🔍 فحص: ${username}`, 'info');
+                try {
+                    const res = await fetch('https://discord.com/api/v9/users/@me/pomelo-attempt', {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({ username })
+                    });
+                    if (res.status === 200) {
+                        const json = await res.json();
+                        if (json.taken === false) {
+                            found++;
+                            sniperFound.push(username);
+                            const entry = document.createElement('div');
+                            entry.style.cssText =
+                                'background:#010102;border:1px solid #16a34a;border-radius:8px;padding:10px;margin:5px 0;';
+                            entry.innerHTML =
+                                `<span style="color:#16a34a;font-weight:bold;">✅ ${username}</span> - متاح`;
+                            document.getElementById('sniper-result').appendChild(entry);
+                            logToConsole('console-sniper', 'sniper-console-lines', `✅ متاح: ${username}`,
+                                'success');
+                            if (webhook) {
+                                await fetch('/api/webhook/send', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        webhook,
+                                        embeds: [{ title: `✅ Username: \`${username}\` is available`,
+                                            color: 0x16a34a }]
+                                    })
+                                }).catch(() => {});
+                            }
+                        }
+                    } else if (res.status === 429) {
+                        logToConsole('console-sniper', 'sniper-console-lines', '⚠️ Rate limit',
+                            'warn');
+                        await new Promise(r => setTimeout(r, 5000));
+                    }
+                } catch (e) {
+                    logToConsole('console-sniper', 'sniper-console-lines', `❌ خطأ: ${e.message}`,
+                        'error');
+                }
+                const progress = document.querySelector('#sniper-result div[style*="6F6E9E"]');
+                if (progress) progress.remove();
+                const pdiv = document.createElement('div');
+                pdiv.style.cssText =
+                    'color:#6F6E9E;font-weight:bold;font-size:13px;margin:8px 0;padding:8px;background:#313040;border-radius:8px;text-align:center;';
+                pdiv.innerHTML = `🔍 الفحص: ${checked}/${maxCount} | 🎯 وجد: ${found}`;
+                document.getElementById('sniper-result').insertBefore(pdiv, document.getElementById(
+                    'sniper-result').firstChild);
+                if (delay > 0) await new Promise(r => setTimeout(r, delay * 1000));
+            }
+            stopSniper();
+            const final = document.createElement('div');
+            final.style.cssText =
+                'background:#010102;border:2px solid #6F6E9E;border-radius:12px;padding:15px;margin:10px 0;text-align:center;';
+            final.innerHTML = `<h3 style="color:#6F6E9E;">✅ اكتمل</h3>
+                <div style="display:flex;justify-content:center;gap:30px;">
+                    <div><span style="font-size:28px;">${checked}</span><br>فحص</div>
+                    <div><span style="font-size:28px;color:#16a34a;">${found}</span><br>متاح</div>
+                </div>`;
+            document.getElementById('sniper-result').appendChild(final);
+            logToConsole('console-sniper', 'sniper-console-lines',
+                `✅ انتهى: ${found} يوزر متاح`, 'success');
+            toast(`✅ وجد ${found} يوزر متاح من ${checked} محاولة`, 'success');
+        }
+
+        function stopSniper() {
+            sniperRunning = false;
+            document.getElementById('sniper-start').style.display = 'inline-flex';
+            document.getElementById('sniper-stop').style.display = 'none';
+            logToConsole('console-sniper', 'sniper-console-lines', '⏹ توقف', 'warn');
+        }
+
+        // ========== STATS ==========
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+                document.getElementById('stats-container').innerHTML = `
+                    <div class="stat-card"><h3>${data.totalKeys||0}</h3><p>إجمالي المفاتيح</p></div>
+                    <div class="stat-card"><h3>${data.activeKeys||0}</h3><p>مفاتيح نشطة</p></div>
+                    <div class="stat-card"><h3>${data.totalDevices||0}</h3><p>الأجهزة المفعلة</p></div>
+                    <div class="stat-card"><h3>${data.blacklisted||0}</h3><p>محظور</p></div>
+                    <div class="stat-card"><h3>${data.activeSessions||0}</h3><p>جلسات نشطة</p></div>
+                    <div class="stat-card"><h3>${Math.floor((data.uptime||0)/3600)}h</h3><p>وقت التشغيل</p></div>`;
+            } catch (e) {}
+        }
+
+        // ========== LOGS ==========
+        async function loadLogs() {
+            try {
+                const res = await fetch('/api/logs');
+                const logs = await res.json();
+                const container = document.getElementById('logs-container');
+                if (!logs.length) {
+                    container.innerHTML = '<p style="color:#B0B0B2;padding:20px;">لا توجد سجلات</p>';
+                    return;
+                }
+                container.innerHTML = logs.reverse().slice(0, 100).map(l =>
+                    `<div style="padding:8px 12px;border-bottom:1px solid #1a1a2e;font-size:13px;font-family:monospace;">
+                        <span style="color:#6F6E9E;">[${new Date(l.timestamp).toLocaleTimeString('ar-SA')}]</span> 
+                        <span style="color:#B0B0B2;">${l.message}</span>
+                    </div>`
+                ).join('');
+            } catch (e) {}
+        }
+
+        // ========== INIT ==========
+        console.log('%c🚀 FEEL STORE v2.0 Ready %c| %cSecure Mode',
+            'color:#6F6E9E;font-size:20px;',
+            '',
+            'color:#16a34a;');
+        console.log('%c⚠️ Unauthorized access is prohibited', 'color:#dc2626;');
+    </script>
 </body>
 </html>
